@@ -1,0 +1,11 @@
+bin/
+obj/
+*.cs
+*.csproj
+*.sln
+*.bat
+*.ico
+*.wav
+*.mp3
+Makefile
+build_log.txt
