@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transkript — Mon espace</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #111;
+      --border:  #2e2e2e;
+      --text:    #f0f0f0;
+      --muted:   #666;
+      --red:     #e5383b;
+      --green:   #4ade80;
+      --amber:   #fbbf24;
+      --blue:    #0078d4;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dot { width: 11px; height: 11px; background: var(--red); border-radius: 50%; }
+    .logo-name { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .user-email { font-size: 13px; color: var(--muted); }
+
+    .btn-logout {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px; font-size: 12px;
+      font-weight: 600; padding: 6px 12px; cursor: pointer;
+      font-family: inherit; transition: border-color .15s, color .15s;
+    }
+    .btn-logout:hover { border-color: #555; color: var(--text); }
+
+    /* ── Main ──────────────────────────────────────────────────────────────── */
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── Welcome card ──────────────────────────────────────────────────────── */
+    .welcome-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .welcome-left h2 {
+      font-size: 18px; font-weight: 700; margin-bottom: 4px;
+    }
+    .welcome-left p {
+      font-size: 13px; color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px; font-weight: 700;
+      padding: 4px 12px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .badge-free  { background: #1a1a1a; color: var(--muted);  border: 1px solid #333; }
+    .badge-beta  { background: #2d1f00; color: var(--amber); border: 1px solid #6b4800; }
+    .badge-pro   { background: #041a0c; color: var(--green); border: 1px solid #0f4a25; }
+
+    /* ── Download card ─────────────────────────────────────────────────────── */
+    .download-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+    }
+
+    .download-card h3 {
+      font-size: 16px; font-weight: 700; margin-bottom: 8px;
+    }
+    .download-card p {
+      font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px;
+    }
+
+    .dl-row {
+      display: flex; align-items: center; gap: 16px;
+      background: #0d0d0d; border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px;
+      flex-wrap: wrap;
+    }
+
+    .dl-icon { font-size: 2rem; line-height: 1; flex-shrink: 0; }
+
+    .dl-info { flex: 1; }
+    .dl-info strong { font-size: 14px; display: block; margin-bottom: 3px; }
+    .dl-info span { font-size: 12px; color: var(--muted); }
+
+    .btn-dl {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 999px; border: none;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      text-decoration: none; background: var(--blue); color: #fff;
+      transition: opacity .15s, transform .15s; white-space: nowrap;
+    }
+    .btn-dl:hover { opacity: .88; transform: scale(1.02); }
+
+    .note { font-size: 12px; color: #555; margin-top: 12px; }
+
+    /* ── Info card ─────────────────────────────────────────────────────────── */
+    .info-card {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 28px;
+    }
+    .info-card h4 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .06em; }
+
+    .steps { display: flex; flex-direction: column; gap: 8px; }
+    .step-row { display: flex; align-items: baseline; gap: 12px; font-size: 13px; color: #bbb; }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #1a1a1a; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* ── Upgrade banner ────────────────────────────────────────────────────── */
+    .upgrade-banner {
+      background: #1a0e00;
+      border: 1px solid #6b4800;
+      border-radius: 14px;
+      padding: 22px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .upgrade-banner p { font-size: 13px; color: #d4a040; line-height: 1.6; }
+    .upgrade-banner strong { color: var(--amber); }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #2a2a2a;
+    }
+    footer a { color: #333; text-decoration: none; transition: color .15s; }
+    footer a:hover { color: #666; }
+
+    /* ── Loading ───────────────────────────────────────────────────────────── */
+    #loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; color: var(--muted); font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">Chargement…</div>
+
+<div id="app" style="display:none">
+  <header>
+    <div class="logo">
+      <div class="dot"></div>
+      <span class="logo-name">Transkript</span>
+    </div>
+    <div class="header-right">
+      <span class="user-email" id="user-email"></span>
+      <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Welcome -->
+    <div class="welcome-card">
+      <div class="welcome-left">
+        <h2 id="welcome-text">Bienvenue !</h2>
+        <p>Votre espace Transkript</p>
+      </div>
+      <span class="badge" id="plan-badge">FREE</span>
+    </div>
+
+    <!-- Upgrade banner (non-pro only) -->
+    <div class="upgrade-banner" id="upgrade-banner" style="display:none">
+      <p>
+        Votre plan actuel ne donne pas accès à l'application.<br>
+        Contactez-nous pour obtenir un accès <strong>Pro</strong>.
+      </p>
+    </div>
+
+    <!-- Download -->
+    <div class="download-card">
+      <h3>Télécharger Transkript</h3>
+      <p>Installer l'application Windows pour commencer à dicter par la voix. Le modèle IA (~488 Mo) est téléchargé automatiquement au premier lancement.</p>
+
+      <div class="dl-row">
+        <div class="dl-icon">🪟</div>
+        <div class="dl-info">
+          <strong>Transkript pour Windows</strong>
+          <span>Windows 10 / 11 · 64-bit · Installer ~2 Mo</span>
+        </div>
+        <a class="btn-dl"
+           href="https://github.com/mcwbcode/Transkript-V1-/releases/latest/download/Transkript-Setup.exe">
+          ↓ Télécharger
+        </a>
+      </div>
+      <p class="note">Aucune donnée vocale n'est envoyée sur internet — tout est traité en local.</p>
+    </div>
+
+    <!-- Steps -->
+    <div class="info-card">
+      <h4>Premiers pas</h4>
+      <div class="steps">
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <span>Lancez <code>Transkript-Setup.exe</code> et suivez l'assistant d'installation</span>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <span>Au premier démarrage, connectez-vous avec votre compte</span>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <span>Attendez le chargement du modèle (~2 min la première fois)</span>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <span>Maintenez <strong>Ctrl Droit</strong> pour dicter, relâchez pour coller</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    Transkript — Dictée vocale locale &nbsp;·&nbsp;
+    <a href="admin.html">Admin</a>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://gotfmgkrjqxzhrlagscj.supabase.co',
+    'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
+  );
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return; }
+
+    const email = session.user.email;
+    document.getElementById('user-email').textContent = email;
+    document.getElementById('welcome-text').textContent = `Bonjour, ${email.split('@')[0]} !`;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display     = 'block';
+
+    // Récupère le plan
+    const plan = await getPlan(session.access_token, session.user.id);
+    applyPlan(plan);
+  }
+
+  async function getPlan(token, userId) {
+    try {
+      const res = await fetch(
+        `https://gotfmgkrjqxzhrlagscj.supabase.co/rest/v1/licences?select=plan,valid_until&user_id=eq.${userId}&limit=1`,
+        { headers: { 'apikey': 'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5', 'Authorization': `Bearer ${token}` } }
+      );
+      const rows = await res.json();
+      if (!rows.length) return 'free';
+      const row = rows[0];
+      if (row.valid_until && new Date(row.valid_until) < new Date()) return 'expired';
+      return row.plan || 'free';
+    } catch { return 'free'; }
+  }
+
+  function applyPlan(plan) {
+    const badge = document.getElementById('plan-badge');
+    const banner = document.getElementById('upgrade-banner');
+
+    switch (plan) {
+      case 'pro':
+        badge.textContent = 'PRO';
+        badge.className   = 'badge badge-pro';
+        break;
+      case 'beta':
+        badge.textContent = 'BETA';
+        badge.className   = 'badge badge-beta';
+        banner.style.display = 'flex';
+        break;
+      default:
+        badge.textContent = 'FREE';
+        badge.className   = 'badge badge-free';
+        banner.style.display = 'flex';
+    }
+  }
+
+  async function doLogout() {
+    await sb.auth.signOut();
+    window.location.href = 'index.html';
+  }
+
+  init();
+</script>
+
+</body>
+</html>

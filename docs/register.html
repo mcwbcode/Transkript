@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transkript — Créer un compte</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #111;
+      --border:  #2e2e2e;
+      --text:    #f0f0f0;
+      --muted:   #666;
+      --red:     #e5383b;
+      --green:   #4ade80;
+      --radius:  10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    /* ── Card ─────────────────────────────────────────────────────────────── */
+    .card {
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px 36px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* ── Logo ─────────────────────────────────────────────────────────────── */
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dot {
+      width: 14px; height: 14px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+    .bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .bars span {
+      display: block;
+      width: 3px;
+      background: #444;
+      border-radius: 2px;
+    }
+    .logo-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+    .logo-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── Tabs ─────────────────────────────────────────────────────────────── */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #0a0a0a;
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 24px;
+      gap: 2px;
+    }
+    .tab {
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .tab.active   { background: var(--red); color: #fff; }
+    .tab.inactive { background: transparent; color: var(--muted); }
+    .tab.inactive:hover { color: #aaa; }
+
+    /* ── Form ─────────────────────────────────────────────────────────────── */
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color .15s;
+      font-family: inherit;
+    }
+    input:focus { border-color: var(--red); }
+
+    /* ── Messages ─────────────────────────────────────────────────────────── */
+    .msg {
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .msg.error   { background: #1a0505; border: 1px solid #5a1010; color: #f87171; }
+    .msg.success { background: #041a0c; border: 1px solid #0f4a25; color: var(--green); }
+    .msg.show    { display: block; }
+
+    /* ── Submit ───────────────────────────────────────────────────────────── */
+    .btn {
+      width: 100%;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+      font-family: inherit;
+      margin-top: 6px;
+    }
+    .btn:hover    { background: #c9292c; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Footer lien ──────────────────────────────────────────────────────── */
+    .footer-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .footer-link a { color: #888; text-decoration: underline; }
+    .footer-link a:hover { color: var(--text); }
+
+    /* ── Success screen ───────────────────────────────────────────────────── */
+    #screen-success {
+      display: none;
+      text-align: center;
+    }
+    .check-icon {
+      width: 56px; height: 56px;
+      background: #041a0c;
+      border: 2px solid #0f4a25;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 20px;
+    }
+    #screen-success h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    #screen-success p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .btn-secondary {
+      display: inline-block;
+      padding: 10px 24px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      text-decoration: none;
+      transition: border-color .15s;
+    }
+    .btn-secondary:hover { border-color: #555; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-icon">
+        <div class="dot"></div>
+        <div class="bars">
+          <span style="height:5px"></span>
+          <span style="height:9px"></span>
+          <span style="height:15px"></span>
+          <span style="height:20px"></span>
+          <span style="height:15px"></span>
+          <span style="height:9px"></span>
+          <span style="height:5px"></span>
+        </div>
+      </div>
+      <div class="logo-name">Transkript</div>
+      <div class="logo-sub">Dictée vocale locale</div>
+    </div>
+
+    <!-- ── Formulaire ─────────────────────────────────────────────────────── -->
+    <div id="screen-form">
+
+      <!-- Onglets -->
+      <div class="tabs">
+        <button class="tab inactive" id="tab-login"  onclick="setTab('login')">Connexion</button>
+        <button class="tab active"   id="tab-signup" onclick="setTab('signup')">Inscription</button>
+      </div>
+
+      <!-- Messages -->
+      <div id="msg" class="msg"></div>
+
+      <!-- Champs -->
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="toi@exemple.com" autocomplete="email"/>
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="password" placeholder="6 caractères minimum" autocomplete="new-password"/>
+      </div>
+      <div class="field" id="field-confirm">
+        <label>Confirmer le mot de passe</label>
+        <input type="password" id="confirm" placeholder="Répète ton mot de passe"/>
+      </div>
+
+      <button class="btn" id="btn-submit" onclick="handleSubmit()">Créer mon compte</button>
+
+      <div class="footer-link" id="footer-link">
+        Déjà un compte ? <a href="#" onclick="setTab('login'); return false;">Se connecter</a>
+      </div>
+    </div>
+
+    <!-- ── Écran succès ────────────────────────────────────────────────────── -->
+    <div id="screen-success">
+      <div class="check-icon">✓</div>
+      <h2 id="success-title">Compte créé !</h2>
+      <p id="success-body">Vérifie ta boîte mail pour confirmer ton adresse,<br>puis ouvre Transkript et connecte-toi.</p>
+      <a href="index.html" class="btn-secondary">← Retour au téléchargement</a>
+    </div>
+
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://gotfmgkrjqxzhrlagscj.supabase.co',
+      'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
+    );
+
+    let currentTab = 'signup';
+
+    function setTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-login').className  = tab === 'login'  ? 'tab active' : 'tab inactive';
+      document.getElementById('tab-signup').className = tab === 'signup' ? 'tab active' : 'tab inactive';
+      document.getElementById('field-confirm').style.display = tab === 'signup' ? '' : 'none';
+      document.getElementById('btn-submit').textContent = tab === 'signup' ? 'Créer mon compte' : 'Se connecter';
+      document.getElementById('footer-link').innerHTML = tab === 'signup'
+        ? 'Déjà un compte ? <a href="#" onclick="setTab(\'login\'); return false;">Se connecter</a>'
+        : 'Pas encore de compte ? <a href="#" onclick="setTab(\'signup\'); return false;">S\'inscrire</a>';
+      clearMsg();
+    }
+
+    function showMsg(text, type) {
+      const el = document.getElementById('msg');
+      el.textContent = text;
+      el.className = 'msg show ' + type;
+    }
+    function clearMsg() {
+      document.getElementById('msg').className = 'msg';
+    }
+
+    function setLoading(loading) {
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = loading;
+      btn.textContent = loading
+        ? (currentTab === 'signup' ? 'Création…' : 'Connexion…')
+        : (currentTab === 'signup' ? 'Créer mon compte' : 'Se connecter');
+    }
+
+    async function handleSubmit() {
+      clearMsg();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm').value;
+
+      if (!email)    { showMsg('Saisis ton email.', 'error'); return; }
+      if (!password) { showMsg('Saisis un mot de passe.', 'error'); return; }
+
+      if (currentTab === 'signup') {
+        if (password.length < 6)    { showMsg('Mot de passe trop court (6 caractères min).', 'error'); return; }
+        if (password !== confirm)   { showMsg('Les mots de passe ne correspondent pas.', 'error'); return; }
+      }
+
+      setLoading(true);
+
+      try {
+        if (currentTab === 'signup') {
+          const { data, error } = await sb.auth.signUp({ email, password });
+          if (error) { showMsg(friendlyError(error.message), 'error'); }
+          else {
+            document.getElementById('screen-form').style.display = 'none';
+            document.getElementById('screen-success').style.display = 'block';
+            // Si email auto-confirmé → message adapté
+            if (data.session) {
+              document.getElementById('success-title').textContent = 'Compte créé !';
+              document.getElementById('success-body').textContent  = 'Tu peux maintenant ouvrir Transkript et te connecter.';
+            }
+          }
+        } else {
+          const { data, error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) { showMsg(friendlyError(error.message), 'error'); }
+          else       { showMsg('Connecté ! Tu peux fermer cet onglet et utiliser Transkript.', 'success'); }
+        }
+      } catch (e) {
+        showMsg('Erreur réseau. Vérifie ta connexion.', 'error');
+      }
+
+      setLoading(false);
+    }
+
+    function friendlyError(msg) {
+      const m = msg.toLowerCase();
+      if (m.includes('invalid login') || m.includes('invalid credentials')) return 'Email ou mot de passe incorrect.';
+      if (m.includes('email not confirm')) return 'Confirme ton email avant de te connecter.';
+      if (m.includes('already registered')) return 'Cet email est déjà utilisé.';
+      if (m.includes('password'))  return 'Mot de passe trop faible (6 caractères min).';
+      if (m.includes('rate limit')) return 'Trop de tentatives. Réessaie dans quelques instants.';
+      return msg;
+    }
+
+    // Soumission via Entrée
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleSubmit();
+    });
+  </script>
+
+</body>
+</html>

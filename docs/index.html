@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transkript — Dictée vocale locale</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #111;
+      --border:  #2e2e2e;
+      --text:    #f0f0f0;
+      --muted:   #888;
+      --red:     #e5383b;
+      --green:   #4ade80;
+      --radius:  14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 24px 60px;
+    }
+
+    /* ── Animated pill ─────────────────────────────────────────────────────── */
+    .pill {
+      display: flex; align-items: center; gap: 10px;
+      background: #111; border: 1px solid var(--border);
+      border-radius: 999px; padding: 10px 20px 10px 14px; margin-bottom: 48px;
+    }
+    .pill-dot { width: 22px; height: 22px; background: var(--red); border-radius: 50%; flex-shrink: 0; }
+    .bars { display: flex; align-items: center; gap: 4px; height: 26px; }
+    .bar  { width: 3px; background: #fff; border-radius: 2px; animation: wave 1.2s ease-in-out infinite; }
+    .bar:nth-child(1)  { height:  4px; animation-delay: .00s; }
+    .bar:nth-child(2)  { height:  8px; animation-delay: .05s; }
+    .bar:nth-child(3)  { height: 14px; animation-delay: .10s; }
+    .bar:nth-child(4)  { height: 20px; animation-delay: .15s; }
+    .bar:nth-child(5)  { height: 24px; animation-delay: .20s; }
+    .bar:nth-child(6)  { height: 22px; animation-delay: .25s; }
+    .bar:nth-child(7)  { height: 26px; animation-delay: .30s; }
+    .bar:nth-child(8)  { height: 26px; animation-delay: .35s; }
+    .bar:nth-child(9)  { height: 22px; animation-delay: .40s; }
+    .bar:nth-child(10) { height: 18px; animation-delay: .45s; }
+    .bar:nth-child(11) { height: 14px; animation-delay: .50s; }
+    .bar:nth-child(12) { height: 10px; animation-delay: .55s; }
+    .bar:nth-child(13) { height:  6px; animation-delay: .60s; }
+    @keyframes wave {
+      0%, 100% { transform: scaleY(.4); opacity: .5; }
+      50%       { transform: scaleY(1);  opacity: 1;  }
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────────────────── */
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      font-weight: 800; letter-spacing: -.04em;
+      text-align: center; margin-bottom: 14px;
+    }
+    h1 span { color: var(--red); }
+
+    .subtitle {
+      color: var(--muted); font-size: 1.05rem;
+      text-align: center; max-width: 440px;
+      line-height: 1.65; margin-bottom: 52px;
+    }
+
+    /* ── Auth card ─────────────────────────────────────────────────────────── */
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 36px 36px;
+      width: 100%; max-width: 380px;
+      margin-bottom: 64px;
+    }
+
+    .tabs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: #0a0a0a; border-radius: 8px;
+      padding: 3px; margin-bottom: 22px; gap: 2px;
+    }
+    .tab {
+      padding: 8px; border-radius: 6px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: background .15s, color .15s; font-family: inherit;
+    }
+    .tab.active   { background: var(--red); color: #fff; }
+    .tab.inactive { background: transparent; color: var(--muted); }
+    .tab.inactive:hover { color: #aaa; }
+
+    .field { margin-bottom: 14px; }
+    label {
+      display: block; font-size: 11px; font-weight: 600; color: var(--muted);
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em;
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 100%; background: #0d0d0d; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 14px;
+      padding: 11px 14px; outline: none; transition: border-color .15s;
+      font-family: inherit;
+    }
+    input:focus { border-color: var(--red); }
+
+    .msg {
+      font-size: 13px; border-radius: 8px;
+      padding: 10px 14px; margin-bottom: 14px; display: none;
+    }
+    .msg.error   { background: #1a0505; border: 1px solid #5a1010; color: #f87171; display: block; }
+    .msg.success { background: #041a0c; border: 1px solid #0f4a25; color: var(--green); display: block; }
+
+    .btn {
+      width: 100%; background: var(--red); color: #fff; border: none;
+      border-radius: 8px; font-size: 14px; font-weight: 700; padding: 12px;
+      cursor: pointer; font-family: inherit; margin-top: 4px;
+      transition: background .15s, opacity .15s;
+    }
+    .btn:hover    { background: #c9292c; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Steps ─────────────────────────────────────────────────────────────── */
+    .section-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--muted);
+      text-align: center; margin-bottom: 28px;
+    }
+    .steps {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      justify-content: center; margin-bottom: 64px;
+    }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 150px; text-align: center; }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #191919; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700; color: var(--muted);
+    }
+    .step-label { font-size: .88rem; font-weight: 600; }
+    .step-sub   { font-size: .73rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Requirements ──────────────────────────────────────────────────────── */
+    .req {
+      background: #111; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 26px 30px;
+      max-width: 500px; width: 100%; margin-bottom: 56px;
+    }
+    .req ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .req li { font-size: .83rem; color: #bbb; display: flex; align-items: baseline; gap: 10px; }
+    .req li::before { content: "–"; color: var(--muted); flex-shrink: 0; }
+    .tag {
+      background: #222; border: 1px solid #333; border-radius: 4px;
+      padding: 1px 7px; font-size: .7rem; color: var(--muted);
+      margin-left: auto; white-space: nowrap;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    footer { font-size: .74rem; color: #3a3a3a; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="pill">
+    <div class="pill-dot"></div>
+    <div class="bars">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </div>
+
+  <h1>Transk<span>ript</span></h1>
+  <p class="subtitle">
+    Dictée vocale locale et privée, propulsée par Whisper.<br>
+    Maintenez <strong>Ctrl Droit</strong> pour dicter, relâchez pour coller.
+  </p>
+
+  <!-- Auth card -->
+  <div class="auth-card">
+    <div class="tabs">
+      <button class="tab active"   id="tab-login"  onclick="setTab('login')">Connexion</button>
+      <button class="tab inactive" id="tab-signup" onclick="setTab('signup')">Inscription</button>
+    </div>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="toi@exemple.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" id="password" placeholder="6 caractères minimum" autocomplete="current-password"/>
+    </div>
+    <div class="field" id="field-confirm" style="display:none">
+      <label>Confirmer le mot de passe</label>
+      <input type="password" id="confirm" placeholder="Répète ton mot de passe"/>
+    </div>
+
+    <button class="btn" id="btn-submit" onclick="handleSubmit()">Se connecter</button>
+  </div>
+
+  <!-- Steps -->
+  <p class="section-label">Comment ça marche</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-label">Créez un compte</div>
+      <div class="step-sub">Inscrivez-vous ci-dessus et obtenez votre accès</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-label">Installez</div>
+      <div class="step-sub">Téléchargez et lancez <code>Transkript-Setup.exe</code></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-label">Dictez</div>
+      <div class="step-sub">Maintenez <strong>Ctrl Droit</strong>, parlez, relâchez</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-label">Collez</div>
+      <div class="step-sub">Le texte se colle automatiquement là où vous tapez</div>
+    </div>
+  </div>
+
+  <!-- Requirements -->
+  <p class="section-label">Prérequis</p>
+  <div class="req">
+    <ul>
+      <li>Windows 10 ou 11 (64-bit)</li>
+      <li>.NET 8 Desktop Runtime <span class="tag">inclus dans l'installateur</span></li>
+      <li>Microphone fonctionnel</li>
+      <li>Connexion internet au premier lancement <span class="tag">modèle ~488 Mo</span></li>
+    </ul>
+  </div>
+
+  <footer>Transkript utilise OpenAI Whisper en local — aucune voix ne quitte votre machine.</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://gotfmgkrjqxzhrlagscj.supabase.co',
+      'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
+    );
+
+    // Redirection si déjà connecté
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = 'dashboard.html';
+    });
+
+    let currentTab = 'login';
+
+    function setTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-login').className  = tab === 'login'  ? 'tab active' : 'tab inactive';
+      document.getElementById('tab-signup').className = tab === 'signup' ? 'tab active' : 'tab inactive';
+      document.getElementById('field-confirm').style.display = tab === 'signup' ? '' : 'none';
+      document.getElementById('btn-submit').textContent = tab === 'signup' ? 'Créer mon compte' : 'Se connecter';
+      document.getElementById('msg').className = 'msg';
+    }
+
+    function showMsg(text, type) {
+      const el = document.getElementById('msg');
+      el.textContent = text;
+      el.className = 'msg ' + type;
+    }
+
+    function setLoading(loading) {
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = loading;
+      btn.textContent = loading
+        ? (currentTab === 'signup' ? 'Création…' : 'Connexion…')
+        : (currentTab === 'signup' ? 'Créer mon compte' : 'Se connecter');
+    }
+
+    async function handleSubmit() {
+      document.getElementById('msg').className = 'msg';
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm').value;
+
+      if (!email)    { showMsg('Saisis ton email.', 'error'); return; }
+      if (!password) { showMsg('Saisis un mot de passe.', 'error'); return; }
+
+      if (currentTab === 'signup') {
+        if (password.length < 6)  { showMsg('Mot de passe trop court (6 caractères min).', 'error'); return; }
+        if (password !== confirm)  { showMsg('Les mots de passe ne correspondent pas.', 'error'); return; }
+      }
+
+      setLoading(true);
+
+      try {
+        if (currentTab === 'signup') {
+          const { error } = await sb.auth.signUp({ email, password });
+          if (error) showMsg(friendlyError(error.message), 'error');
+          else       showMsg('Compte créé ! Vérifie ta boîte mail puis connecte-toi.', 'success');
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) showMsg(friendlyError(error.message), 'error');
+          else       window.location.href = 'dashboard.html';
+        }
+      } catch {
+        showMsg('Erreur réseau. Vérifie ta connexion.', 'error');
+      }
+
+      setLoading(false);
+    }
+
+    function friendlyError(msg) {
+      const m = msg.toLowerCase();
+      if (m.includes('invalid login') || m.includes('invalid credentials')) return 'Email ou mot de passe incorrect.';
+      if (m.includes('email not confirm')) return 'Confirme ton email avant de te connecter.';
+      if (m.includes('already registered')) return 'Cet email est déjà utilisé. Connecte-toi.';
+      if (m.includes('password')) return 'Mot de passe trop faible (6 caractères min).';
+      if (m.includes('rate limit')) return 'Trop de tentatives. Réessaie dans quelques instants.';
+      return msg;
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleSubmit();
+    });
+  </script>
+
+</body>
+</html>

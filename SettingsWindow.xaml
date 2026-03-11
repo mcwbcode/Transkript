@@ -1,0 +1,109 @@
+<Window
+    x:Class="Transkript.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Paramètres — Transkript"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ResizeMode="NoResize"
+    Width="380" Height="240"
+    WindowStartupLocation="CenterScreen"
+    MouseLeftButtonDown="OnDrag">
+
+    <Border Background="#1C1C1E" CornerRadius="14"
+            BorderBrush="#2E2E2E" BorderThickness="1">
+        <Grid Margin="28,24,28,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Ellipse Width="10" Height="10" Fill="#FF3B30" VerticalAlignment="Center"/>
+                <TextBlock Text="Paramètres" Foreground="White" FontSize="15" FontWeight="Bold"
+                           Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Touche de dictée label -->
+            <TextBlock Grid.Row="2" Text="TOUCHE DE DICTÉE"
+                       Foreground="#666" FontSize="10" FontWeight="SemiBold"
+                       Margin="0,0,0,8"/>
+
+            <!-- Key capture button -->
+            <Border Grid.Row="3" x:Name="KeyBorder"
+                    Background="#111" CornerRadius="8"
+                    BorderBrush="#3A3A3C" BorderThickness="1"
+                    Height="44" Cursor="Hand"
+                    MouseLeftButtonDown="KeyBorder_Click">
+                <Grid>
+                    <TextBlock x:Name="TxtKey" Text="Ctrl Droit"
+                               Foreground="White" FontSize="14" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtHint" Text="Cliquez pour changer…"
+                               Foreground="#555" FontSize="12"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Visibility="Collapsed"/>
+                </Grid>
+            </Border>
+
+            <!-- Listening indicator -->
+            <TextBlock Grid.Row="3" x:Name="TxtListening"
+                       Text="⌨  Appuyez sur la touche souhaitée…"
+                       Foreground="#FF9F0A" FontSize="12"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Visibility="Collapsed"/>
+
+            <!-- Bottom buttons -->
+            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnCancel" Content="Annuler"
+                        Width="90" Height="34" Margin="0,0,10,0"
+                        Click="BtnCancel_Click"
+                        Background="#2C2C2E" Foreground="#AAA"
+                        BorderBrush="#3A3A3C" BorderThickness="1">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="8">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button x:Name="BtnSave" Content="Enregistrer"
+                        Width="110" Height="34"
+                        Click="BtnSave_Click"
+                        Background="#0A84FF" Foreground="White"
+                        BorderThickness="0">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="8">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

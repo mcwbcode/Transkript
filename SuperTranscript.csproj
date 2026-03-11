@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>Transkript</RootNamespace>
+    <AssemblyName>Transkript</AssemblyName>
+    <Version>1.0.0</Version>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Whisper speech-to-text (wraps whisper.cpp) -->
+    <PackageReference Include="Whisper.net"              Version="1.7.2" />
+    <PackageReference Include="Whisper.net.Runtime"      Version="1.7.2" />
+    <PackageReference Include="Whisper.net.Runtime.Cuda" Version="1.7.2" />
+    <!-- Audio capture -->
+    <PackageReference Include="NAudio"                   Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Icône copiée dans le dossier de publication pour le tray icon -->
+    <None Include="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- Son de démarrage intégré dans l'exe -->
+    <EmbeddedResource Include="mixkit-opening-software-interface-2578.wav" />
+  </ItemGroup>
+
+</Project>

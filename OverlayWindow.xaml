@@ -1,0 +1,44 @@
+<Window
+    x:Class="Transkript.OverlayWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent"
+    Topmost="True"
+    ShowInTaskbar="False"
+    IsHitTestVisible="False"
+    WindowStartupLocation="Manual"
+    ResizeMode="NoResize"
+    Width="228"
+    Height="46">
+
+    <!-- Dark semi-transparent pill -->
+    <Border
+        x:Name="Pill"
+        Background="#CC1C1C1E"
+        CornerRadius="23"
+        Opacity="0">
+
+        <StackPanel
+            Orientation="Horizontal"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Margin="14,0">
+
+            <!-- Red recording dot -->
+            <Ellipse
+                Width="10" Height="10"
+                Fill="#FF3B30"
+                VerticalAlignment="Center" />
+
+            <!-- Waveform canvas: 20 bars × (4px + 3px gap) − 3px = 137px -->
+            <Canvas
+                x:Name="WaveCanvas"
+                Width="137" Height="30"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center" />
+
+        </StackPanel>
+    </Border>
+</Window>

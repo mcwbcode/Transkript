@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transkript — Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #111;
+      --border:  #2e2e2e;
+      --text:    #f0f0f0;
+      --muted:   #666;
+      --red:     #e5383b;
+      --green:   #4ade80;
+      --amber:   #fbbf24;
+      --blue:    #60a5fa;
+      --radius:  10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Login ─────────────────────────────────────────────────────────────── */
+    #screen-login {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .dot { width: 12px; height: 12px; background: var(--red); border-radius: 50%; }
+    .logo-name { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+    .logo-tag  { font-size: 11px; color: var(--muted); margin-left: 4px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 6px;
+    }
+    .field { margin-bottom: 14px; }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color .15s;
+      font-family: inherit;
+    }
+    input:focus { border-color: var(--red); }
+
+    .btn {
+      width: 100%;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 6px;
+      transition: background .15s, opacity .15s;
+    }
+    .btn:hover    { background: #c9292c; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .msg {
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .msg.error   { background: #1a0505; border: 1px solid #5a1010; color: #f87171; display: block; }
+    .msg.success { background: #041a0c; border: 1px solid #0f4a25; color: var(--green); display: block; }
+
+    /* ── Dashboard ─────────────────────────────────────────────────────────── */
+    #screen-admin { display: none; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .admin-email {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .btn-sm {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-sm:hover { border-color: #555; color: var(--text); }
+
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* ── Stats ─────────────────────────────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; }
+
+    /* ── Toolbar ───────────────────────────────────────────────────────────── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 9px 14px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color .15s;
+    }
+    .search:focus { border-color: #555; }
+    .search::placeholder { color: var(--muted); }
+
+    .btn-refresh {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color .15s;
+      white-space: nowrap;
+    }
+    .btn-refresh:hover { border-color: #555; }
+
+    /* ── Table ─────────────────────────────────────────────────────────────── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #0d0d0d;
+    }
+
+    td {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid #1a1a1a;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #161616; }
+
+    .email-cell { font-weight: 500; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .muted-cell { color: var(--muted); font-size: 12px; }
+
+    /* ── Plan badge ────────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .badge-free  { background: #1a1a1a; color: var(--muted); border: 1px solid #333; }
+    .badge-beta  { background: #2d1f00; color: var(--amber); border: 1px solid #6b4800; }
+    .badge-pro   { background: #041a0c; color: var(--green); border: 1px solid #0f4a25; }
+
+    /* ── Plan editor ───────────────────────────────────────────────────────── */
+    .plan-select {
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 5px 8px;
+      outline: none;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .plan-select:focus { border-color: var(--red); }
+
+    .date-input {
+      background: #0d0d0d;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      padding: 5px 8px;
+      outline: none;
+      font-family: inherit;
+      width: 130px;
+    }
+    .date-input:focus { border-color: var(--red); }
+    .date-input:disabled { opacity: .35; }
+
+    .save-btn {
+      background: #1a3a1a;
+      border: 1px solid #0f4a25;
+      color: var(--green);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .save-btn:hover { background: #1e4a1e; }
+    .save-btn.saving { opacity: .5; cursor: not-allowed; }
+    .save-btn.saved  { background: #041a0c; color: #4ade80; cursor: default; }
+
+    .unlimited-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .unlimited-label input { cursor: pointer; accent-color: var(--red); }
+
+    .date-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    /* ── Loading / empty ───────────────────────────────────────────────────── */
+    .table-placeholder {
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* ── Toast ─────────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,.6);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: transform .25s, opacity .25s;
+      z-index: 100;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.ok   { border-color: #0f4a25; color: var(--green); }
+    #toast.err  { border-color: #5a1010; color: #f87171; }
+  </style>
+</head>
+<body>
+
+<!-- ── Écran login ────────────────────────────────────────────────────────── -->
+<div id="screen-login">
+  <div class="login-card">
+    <div class="logo">
+      <div class="dot"></div>
+      <span class="logo-name">Transkript</span>
+      <span class="logo-tag">ADMIN</span>
+    </div>
+
+    <div id="login-msg" class="msg"></div>
+
+    <div class="field">
+      <label>Email admin</label>
+      <input type="email" id="login-email" placeholder="admin@exemple.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn" id="login-btn" onclick="doLogin()">Connexion</button>
+  </div>
+</div>
+
+<!-- ── Dashboard admin ───────────────────────────────────────────────────── -->
+<div id="screen-admin">
+  <header>
+    <div class="header-left">
+      <div class="dot"></div>
+      <span style="font-weight:700;font-size:15px">Transkript</span>
+      <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Admin</span>
+    </div>
+    <div class="header-right">
+      <span class="admin-email" id="admin-email-label"></span>
+      <button class="btn-sm" onclick="doLogout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Utilisateurs</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Free</div>
+        <div class="stat-value" id="stat-free">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Beta</div>
+        <div class="stat-value" style="color:var(--amber)" id="stat-beta">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pro</div>
+        <div class="stat-value" style="color:var(--green)" id="stat-pro">—</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input class="search" id="search-input" type="text" placeholder="Rechercher par email…" oninput="filterTable()"/>
+      <button class="btn-refresh" onclick="loadUsers()">↻ Actualiser</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Plan</th>
+            <th>Expire le</th>
+            <th>Dernière connexion</th>
+            <th>Version app</th>
+            <th>Inscrit le</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="users-body">
+          <tr><td colspan="7" class="table-placeholder">Chargement…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://gotfmgkrjqxzhrlagscj.supabase.co',
+    'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
+  );
+
+  let allUsers = [];
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      showAdmin(session.user.email);
+    }
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pwd   = document.getElementById('login-pwd').value;
+    if (!email || !pwd) return;
+
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true; btn.textContent = 'Connexion…';
+    document.getElementById('login-msg').className = 'msg';
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+    btn.disabled = false; btn.textContent = 'Connexion';
+
+    if (error) {
+      const el = document.getElementById('login-msg');
+      el.textContent = 'Email ou mot de passe incorrect.';
+      el.className = 'msg error';
+      return;
+    }
+    showAdmin(data.user.email);
+  }
+
+  async function doLogout() {
+    await sb.auth.signOut();
+    document.getElementById('screen-admin').style.display = 'none';
+    document.getElementById('screen-login').style.display = 'flex';
+    allUsers = [];
+  }
+
+  async function showAdmin(email) {
+    document.getElementById('screen-login').style.display = 'none';
+    document.getElementById('screen-admin').style.display = 'block';
+    document.getElementById('admin-email-label').textContent = email;
+    await loadUsers();
+  }
+
+  // ── Data ────────────────────────────────────────────────────────────────────
+
+  async function loadUsers() {
+    document.getElementById('users-body').innerHTML =
+      '<tr><td colspan="7" class="table-placeholder">Chargement…</td></tr>';
+
+    const { data, error } = await sb.rpc('admin_list_users');
+
+    if (error) {
+      if (error.message.includes('Accès refusé')) {
+        toast('Accès refusé : tu n\'es pas administrateur.', 'err');
+        doLogout();
+      } else {
+        toast('Erreur : ' + error.message, 'err');
+      }
+      return;
+    }
+
+    allUsers = data || [];
+    updateStats(allUsers);
+    renderTable(allUsers);
+  }
+
+  function updateStats(users) {
+    document.getElementById('stat-total').textContent = users.length;
+    document.getElementById('stat-free').textContent  = users.filter(u => u.plan === 'free').length;
+    document.getElementById('stat-beta').textContent  = users.filter(u => u.plan === 'beta').length;
+    document.getElementById('stat-pro').textContent   = users.filter(u => u.plan === 'pro').length;
+  }
+
+  function filterTable() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const filtered = allUsers.filter(u => u.email.toLowerCase().includes(q));
+    renderTable(filtered);
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  function renderTable(users) {
+    const tbody = document.getElementById('users-body');
+    if (users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="table-placeholder">Aucun utilisateur trouvé.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => rowHtml(u)).join('');
+  }
+
+  function rowHtml(u) {
+    const isUnlimited = !u.valid_until;
+    const validDate   = u.valid_until ? u.valid_until.slice(0, 10) : '';
+    const lastLogin   = u.last_login  ? fmtDate(u.last_login)  : '<span style="color:var(--muted)">—</span>';
+    const createdAt   = fmtDate(u.created_at);
+    const appVer      = u.app_version || '<span style="color:var(--muted)">—</span>';
+    const expired     = u.valid_until && new Date(u.valid_until) < new Date();
+
+    return `
+    <tr data-id="${u.id}">
+      <td class="email-cell" title="${u.email}">${u.email}</td>
+      <td>
+        <select class="plan-select" onchange="onRowChange('${u.id}')">
+          <option value="free"  ${u.plan === 'free'  ? 'selected' : ''}>Free</option>
+          <option value="beta"  ${u.plan === 'beta'  ? 'selected' : ''}>Beta</option>
+          <option value="pro"   ${u.plan === 'pro'   ? 'selected' : ''}>Pro</option>
+        </select>
+      </td>
+      <td>
+        <div class="date-wrap">
+          <input class="date-input" type="date" value="${validDate}"
+            ${isUnlimited ? 'disabled' : ''}
+            onchange="onRowChange('${u.id}')"/>
+          <label class="unlimited-label">
+            <input type="checkbox" ${isUnlimited ? 'checked' : ''}
+              onchange="toggleUnlimited(this, '${u.id}')"/> Illimité
+          </label>
+        </div>
+      </td>
+      <td class="muted-cell">${lastLogin}</td>
+      <td class="muted-cell">${appVer}</td>
+      <td class="muted-cell">${createdAt}</td>
+      <td>
+        <button class="save-btn" id="save-${u.id}" onclick="savePlan('${u.id}')">Enregistrer</button>
+      </td>
+    </tr>`;
+  }
+
+  function toggleUnlimited(checkbox, userId) {
+    const row = document.querySelector(`tr[data-id="${userId}"]`);
+    const dateInput = row.querySelector('.date-input');
+    dateInput.disabled = checkbox.checked;
+    if (checkbox.checked) dateInput.value = '';
+    onRowChange(userId);
+  }
+
+  function onRowChange(userId) {
+    const btn = document.getElementById(`save-${userId}`);
+    if (btn) {
+      btn.className = 'save-btn';
+      btn.textContent = 'Enregistrer';
+    }
+  }
+
+  // ── Save ────────────────────────────────────────────────────────────────────
+
+  async function savePlan(userId) {
+    const row      = document.querySelector(`tr[data-id="${userId}"]`);
+    const plan     = row.querySelector('.plan-select').value;
+    const unlimited = row.querySelector('input[type=checkbox]').checked;
+    const dateVal   = row.querySelector('.date-input').value;
+    const validUntil = unlimited ? null : (dateVal ? new Date(dateVal).toISOString() : null);
+
+    const btn = document.getElementById(`save-${userId}`);
+    btn.className = 'save-btn saving';
+    btn.textContent = '…';
+
+    const { error } = await sb.rpc('admin_set_plan', {
+      target_user_id:  userId,
+      new_plan:        plan,
+      new_valid_until: validUntil
+    });
+
+    if (error) {
+      btn.className = 'save-btn';
+      btn.textContent = 'Enregistrer';
+      toast('Erreur : ' + error.message, 'err');
+    } else {
+      btn.className = 'save-btn saved';
+      btn.textContent = '✓ Sauvegardé';
+
+      // Met à jour allUsers en mémoire
+      const u = allUsers.find(x => x.id === userId);
+      if (u) { u.plan = plan; u.valid_until = validUntil; }
+      updateStats(allUsers);
+      toast(`${row.querySelector('.email-cell').textContent} → ${plan}`, 'ok');
+    }
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+         + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  let toastTimer;
+  function toast(msg, type) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+  }
+
+  // Enter pour login
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('screen-login').style.display !== 'none')
+      doLogin();
+  });
+
+  init();
+</script>
+
+</body>
+</html>
