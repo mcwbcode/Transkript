@@ -119,14 +119,17 @@ public partial class App
         // ── Initialisation des services ──────────────────────────────────────
         _settings = AppSettings.Load();
         Logger.Write($"Hotkey chargé : {_settings.HotkeyName} (VK {_settings.HotkeyVk})");
+        Logger.Write($"Langue : {_settings.Language} | FiltreMots : {_settings.RemoveFillers} | Historique : {_settings.SaveHistory}");
 
         _overlay     = new OverlayWindow();
         _recorder    = new AudioRecorder();
         _transcriber = new Transcriber();
+        _transcriber.SetLanguage(_settings.Language);
 
         _tray = new TrayManager();
-        _tray.ExitRequested     += () => Dispatcher.Invoke(Shutdown);
-        _tray.SettingsRequested += () => Dispatcher.Invoke(OpenSettings);
+        _tray.ExitRequested      += () => Dispatcher.Invoke(Shutdown);
+        _tray.SettingsRequested  += () => Dispatcher.Invoke(OpenSettings);
+        _tray.HistoryRequested   += () => HistoryManager.OpenHistoryFolder();
 
         _overlay.GetLevels = () => _recorder.WaveformLevels;
 
@@ -173,6 +176,36 @@ public partial class App
                 MessageBox.Show(
                     $"Erreur lors du chargement du modèle Whisper :\n\n{ex.Message}",
                     "Transkript — Erreur", MessageBoxButton.OK, MessageBoxImage.Error));
+        }
+    }
+
+    // ── Auto-recovery after transcription failure ────────────────────────────
+
+    private async Task RecoverTranscriberAsync()
+    {
+        Logger.Write("RecoverTranscriberAsync : début");
+        Dispatcher.Invoke(() => _tray!.SetStatus("Réinitialisation du moteur…"));
+
+        try
+        {
+            var progress = new Progress<string>(msg =>
+                Dispatcher.Invoke(() => _tray!.SetStatus(msg)));
+
+            await _transcriber!.ResetAsync(progress);
+
+            Logger.Write("RecoverTranscriberAsync : OK");
+            Dispatcher.Invoke(() =>
+            {
+                string mode = _transcriber!.UsingCuda ? "GPU (CUDA)" : "CPU";
+                _tray!.SetStatus($"Prêt [{mode}] — maintenez {_settings.HotkeyName} pour dicter");
+                _tray.ShowBalloon("Transkript", "Moteur réinitialisé avec succès.");
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.Write($"[ERREUR] RecoverTranscriberAsync : {ex}");
+            Dispatcher.Invoke(() =>
+                _tray!.SetStatus("Échec réinitialisation — relancez l'app"));
         }
     }
 
@@ -258,39 +291,56 @@ public partial class App
 
         _tray!.SetStatus("Transcription…");
 
+        bool transcriptionFailed = false;
         try
         {
             Logger.Write("TranscribeAsync : début");
             float[] samples = AudioRecorder.ToFloatSamples(pcm);
             Logger.Write($"TranscribeAsync : {samples.Length} samples envoyés au modèle");
 
-            string text = await Task.Run(() => _transcriber!.TranscribeAsync(samples));
+            string raw  = await Task.Run(() => _transcriber!.TranscribeAsync(samples));
+            string text = TextProcessor.Process(raw, _settings);
 
-            Logger.Write($"TranscribeAsync : OK — {text.Length} caractères");
+            Logger.Write($"TranscribeAsync : OK — brut={raw.Length} car, traité={text.Length} car");
 
             if (string.IsNullOrWhiteSpace(text))
+            {
                 _tray.SetStatus("Rien détecté");
+            }
             else
             {
                 PasteHelper.Paste(text);
-                _tray.SetStatus($"✓  {text.Length} caractères collés");
+                int words = TextProcessor.CountWords(text);
+                _tray.SetStatus($"✓  {words} mot{(words > 1 ? "s" : "")} ({text.Length} car.)");
+
+                // Save to history
+                if (_settings.SaveHistory)
+                    HistoryManager.Append(text, _settings.Language);
             }
         }
         catch (Exception ex)
         {
             Logger.Write($"[ERREUR] TranscribeAsync : {ex}");
-            _tray!.SetStatus($"Erreur : {ex.Message}");
+            _tray!.SetStatus("Erreur de transcription — réinitialisation…");
+            transcriptionFailed = true;
         }
 
-        await Task.Delay(2000);
-        RestoreReadyStatus();
+        await Task.Delay(transcriptionFailed ? 500 : 2000);
         _processing = false;
+
+        // Auto-recover: reinitialize processor in background after failure
+        if (transcriptionFailed)
+            _ = Task.Run(RecoverTranscriberAsync);
+        else
+            RestoreReadyStatus();
     }
 
     private void RestoreReadyStatus()
     {
-        string mode = _transcriber?.UsingCuda == true ? "GPU (CUDA)" : "CPU";
-        _tray?.SetStatus($"Prêt [{mode}] — maintenez {_settings.HotkeyName} pour dicter");
+        string mode  = _transcriber?.UsingCuda == true ? "GPU (CUDA)" : "CPU";
+        int    today = HistoryManager.GetTodayWordCount();
+        string words = today > 0 ? $" | {today} mots aujourd'hui" : "";
+        _tray?.SetStatus($"Prêt [{mode}]{words} — maintenez {_settings.HotkeyName} pour dicter");
     }
 
     // ── Paramètres ───────────────────────────────────────────────────────────
@@ -300,13 +350,31 @@ public partial class App
         var win = new SettingsWindow(_settings);
         if (win.ShowDialog() != true) return;
 
-        _settings.HotkeyVk   = win.NewHotkeyVk;
-        _settings.HotkeyName = win.NewHotkeyName;
+        bool languageChanged = win.NewLanguage != _settings.Language;
+
+        _settings.HotkeyVk          = win.NewHotkeyVk;
+        _settings.HotkeyName        = win.NewHotkeyName;
+        _settings.Language           = win.NewLanguage;
+        _settings.RemoveFillers      = win.NewRemoveFillers;
+        _settings.AutoCapitalize     = win.NewAutoCapitalize;
+        _settings.RemoveDuplicates   = win.NewRemoveDuplicates;
+        _settings.SaveHistory        = win.NewSaveHistory;
+        _settings.PersonalDictionary = win.NewPersonalDictionary;
         _settings.Save();
 
         _hook!.HotkeyVk = _settings.HotkeyVk;
-        Logger.Write($"Hotkey mis à jour : {_settings.HotkeyName} (VK {_settings.HotkeyVk})");
-        RestoreReadyStatus();
+        Logger.Write($"Paramètres mis à jour : hotkey={_settings.HotkeyName}, langue={_settings.Language}");
+
+        // Re-init Whisper with new language if needed
+        if (languageChanged && _transcriber!.IsReady)
+        {
+            _transcriber.SetLanguage(_settings.Language);
+            _ = Task.Run(RecoverTranscriberAsync);
+        }
+        else
+        {
+            RestoreReadyStatus();
+        }
     }
 
     // ── Shutdown ─────────────────────────────────────────────────────────────

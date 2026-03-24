@@ -15,6 +15,7 @@ public sealed class TrayManager : IDisposable
 
     public event Action? ExitRequested;
     public event Action? SettingsRequested;
+    public event Action? HistoryRequested;
 
     public TrayManager()
     {
@@ -23,7 +24,8 @@ public sealed class TrayManager : IDisposable
         var header = menu.Items.Add("Transkript");
         header.Enabled = false;
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Paramètres", null, (_, _) => SettingsRequested?.Invoke());
+        menu.Items.Add("Paramètres",  null, (_, _) => SettingsRequested?.Invoke());
+        menu.Items.Add("Historique",  null, (_, _) => HistoryRequested?.Invoke());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Quitter", null, (_, _) => ExitRequested?.Invoke());
 

@@ -28,8 +28,45 @@ public sealed class Transcriber : IDisposable
     private WhisperFactory?   _factory;
     private WhisperProcessor? _processor;
 
+    private string _language = "fr";
+    private string _prompt   = "Transcription en français. Voici un texte dicté :";
+
     public bool IsReady     { get; private set; }
     public bool UsingCuda   { get; private set; }
+
+    /// <summary>Sets the transcription language (ISO 639-1 code, e.g. "fr", "en", "auto").</summary>
+    public void SetLanguage(string languageCode)
+    {
+        _language = languageCode == "auto" ? "auto" : languageCode;
+        _prompt   = languageCode switch
+        {
+            "fr"   => "Transcription en français. Voici un texte dicté :",
+            "en"   => "English transcription. Dictated text follows:",
+            "es"   => "Transcripción en español. Texto dictado:",
+            "de"   => "Transkription auf Deutsch. Diktierter Text:",
+            "it"   => "Trascrizione in italiano. Testo dettato:",
+            "pt"   => "Transcrição em português. Texto ditado:",
+            "nl"   => "Transcriptie in het Nederlands. Gedicteerde tekst:",
+            "auto" => "",
+            _      => ""
+        };
+    }
+
+    /// <summary>
+    /// Re-creates the WhisperProcessor after a failure, without re-downloading the model.
+    /// Resets IsReady to false during the process.
+    /// </summary>
+    public async Task ResetAsync(IProgress<string>? progress = null)
+    {
+        IsReady = false;
+        Logger.Write("ResetAsync : début réinitialisation du processeur");
+
+        _processor?.Dispose(); _processor = null;
+        _factory?.Dispose();   _factory   = null;
+        UsingCuda = false;
+
+        await InitializeAsync(progress);
+    }
 
     public async Task InitializeAsync(IProgress<string>? progress = null)
     {
@@ -62,10 +99,10 @@ public sealed class Transcriber : IDisposable
 
             Logger.Write("Tentative CUDA : CreateBuilder");
             _processor = _factory.CreateBuilder()
-                .WithLanguage("fr")
+                .WithLanguage(_language)
                 .WithNoContext()
                 .WithThreads(threads)
-                .WithPrompt("Transcription en français. Voici un texte dicté :")
+                .WithPrompt(_prompt)
                 .Build();
 
             progress?.Report("Initialisation GPU…");
@@ -87,23 +124,33 @@ public sealed class Transcriber : IDisposable
         if (!UsingCuda)
         {
             progress?.Report("Initialisation CPU…");
-            Logger.Write("Fallback CPU : SetRuntimeLibraryOrder");
-            RuntimeOptions.Instance.SetRuntimeLibraryOrder([RuntimeLibrary.Cpu]);
+            try
+            {
+                Logger.Write("Fallback CPU : SetRuntimeLibraryOrder");
+                RuntimeOptions.Instance.SetRuntimeLibraryOrder([RuntimeLibrary.Cpu]);
 
-            Logger.Write("Fallback CPU : WhisperFactory.FromPath");
-            _factory   = WhisperFactory.FromPath(ModelPath);
+                Logger.Write("Fallback CPU : WhisperFactory.FromPath");
+                _factory   = WhisperFactory.FromPath(ModelPath);
 
-            Logger.Write("Fallback CPU : CreateBuilder");
-            _processor = _factory.CreateBuilder()
-                .WithLanguage("fr")
-                .WithNoContext()
-                .WithThreads(threads)
-                .WithPrompt("Transcription en français. Voici un texte dicté :")
-                .Build();
+                Logger.Write("Fallback CPU : CreateBuilder");
+                _processor = _factory.CreateBuilder()
+                    .WithLanguage(_language)
+                    .WithNoContext()
+                    .WithThreads(threads)
+                    .WithPrompt(_prompt)
+                    .Build();
 
-            Logger.Write("Fallback CPU : WarmUp");
-            await WarmUpAsync();
-            Logger.Write("Fallback CPU : OK");
+                Logger.Write("Fallback CPU : WarmUp");
+                await WarmUpAsync();
+                Logger.Write("Fallback CPU : OK");
+            }
+            catch (Exception ex)
+            {
+                Logger.Write($"Fallback CPU : ÉCHEC ({ex.GetType().Name} : {ex.Message})");
+                _processor?.Dispose(); _processor = null;
+                _factory?.Dispose();   _factory   = null;
+                throw; // propagate so InitializeAsync caller shows error
+            }
         }
 
         IsReady = true;
