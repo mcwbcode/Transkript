@@ -7,37 +7,39 @@
     Background="Transparent"
     Topmost="True"
     ShowInTaskbar="False"
+    ShowActivated="False"
+    Focusable="False"
     IsHitTestVisible="False"
     WindowStartupLocation="Manual"
     ResizeMode="NoResize"
-    Width="228"
-    Height="46">
+    Width="220" Height="48">
 
-    <!-- Dark semi-transparent pill -->
+    <!-- Pure black pill — visible on any background -->
     <Border
         x:Name="Pill"
-        Background="#CC1C1C1E"
-        CornerRadius="23"
+        Background="#F2000000"
+        CornerRadius="24"
         Opacity="0">
+
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.25" Color="Black"/>
+        </Border.Effect>
 
         <StackPanel
             Orientation="Horizontal"
             VerticalAlignment="Center"
             HorizontalAlignment="Center"
-            Margin="14,0">
+            Margin="16,0">
 
-            <!-- Red recording dot -->
-            <Ellipse
-                Width="10" Height="10"
-                Fill="#FF3B30"
-                VerticalAlignment="Center" />
+            <!-- Recording dot -->
+            <Ellipse Width="7" Height="7" Fill="#FF3B30"
+                     VerticalAlignment="Center" Margin="0,0,10,0"/>
 
-            <!-- Waveform canvas: 20 bars × (4px + 3px gap) − 3px = 137px -->
+            <!-- Waveform canvas: 20 bars -->
             <Canvas
                 x:Name="WaveCanvas"
-                Width="137" Height="30"
-                Margin="10,0,0,0"
-                VerticalAlignment="Center" />
+                Width="130" Height="30"
+                VerticalAlignment="Center"/>
 
         </StackPanel>
     </Border>

@@ -28,8 +28,6 @@
     <None Include="app.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <!-- Son de démarrage intégré dans l'exe -->
-    <EmbeddedResource Include="mixkit-opening-software-interface-2578.wav" />
   </ItemGroup>
 
 </Project>

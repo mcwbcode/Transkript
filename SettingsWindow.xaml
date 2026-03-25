@@ -11,23 +11,58 @@
     WindowStartupLocation="CenterScreen"
     MouseLeftButtonDown="OnDrag">
 
-    <Border Background="#1C1C1E" CornerRadius="14"
-            BorderBrush="#2E2E2E" BorderThickness="1">
+    <Window.Effect>
+        <DropShadowEffect BlurRadius="32" ShadowDepth="6" Opacity="0.09" Color="Black"/>
+    </Window.Effect>
+
+    <Border Background="White" CornerRadius="16"
+            BorderBrush="#EBEBEB" BorderThickness="1">
         <Grid Margin="28,24,28,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="16"/>
+                <RowDefinition Height="18"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="16"/>
+                <RowDefinition Height="18"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Header -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <Ellipse Width="10" Height="10" Fill="#FF3B30" VerticalAlignment="Center"/>
-                <TextBlock Text="Paramètres" Foreground="White" FontSize="15" FontWeight="Bold"
-                           Margin="8,0,0,0" VerticalAlignment="Center"/>
-            </StackPanel>
+            <Grid Grid.Row="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Rectangle Width="2.5" Height="5"  Fill="#D8D8D8" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+                        <Rectangle Width="2.5" Height="9"  Fill="#A0A0A0" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+                        <Rectangle Width="2.5" Height="14" Fill="#0D0D0D" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+                        <Rectangle Width="2.5" Height="9"  Fill="#A0A0A0" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+                        <Rectangle Width="2.5" Height="5"  Fill="#D8D8D8" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="Paramètres" Foreground="#0D0D0D" FontSize="15" FontWeight="Bold"
+                               VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                </StackPanel>
+                <Button Width="28" Height="28" FontSize="12"
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Content="✕" Click="BtnCancel_Click" Cursor="Hand"
+                        Background="Transparent" BorderThickness="0" Foreground="#C0C0C0">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Foreground" Value="#0D0D0D"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
 
             <!-- Tab control -->
             <TabControl Grid.Row="2"
@@ -36,26 +71,31 @@
                         Padding="0">
                 <TabControl.Resources>
                     <Style TargetType="TabItem">
-                        <Setter Property="Background"   Value="Transparent"/>
-                        <Setter Property="Foreground"   Value="#888"/>
+                        <Setter Property="Background"      Value="Transparent"/>
+                        <Setter Property="Foreground"      Value="#9B9B9B"/>
                         <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding"      Value="12,6"/>
-                        <Setter Property="FontSize"     Value="12"/>
+                        <Setter Property="Padding"         Value="14,7"/>
+                        <Setter Property="FontSize"        Value="12"/>
+                        <Setter Property="FontFamily"      Value="Segoe UI"/>
+                        <Setter Property="Cursor"          Value="Hand"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="TabItem">
                                     <Border x:Name="TabBorder"
                                             Background="Transparent"
-                                            CornerRadius="6"
-                                            Padding="12,6"
+                                            CornerRadius="8"
+                                            Padding="14,7"
                                             Margin="0,0,4,0">
                                         <ContentPresenter ContentSource="Header"
                                                           HorizontalAlignment="Center"/>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="TabBorder" Property="Background" Value="#2C2C2E"/>
-                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter TargetName="TabBorder" Property="Background" Value="#F0F0F0"/>
+                                            <Setter Property="Foreground" Value="#0D0D0D"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#4A4A4A"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -66,45 +106,151 @@
 
                 <!-- ── TAB 1 : Général ── -->
                 <TabItem Header="Général">
-                    <StackPanel Margin="0,16,0,0">
+                    <StackPanel Margin="0,18,0,0">
 
-                        <!-- Hotkey -->
                         <TextBlock Text="TOUCHE DE DICTÉE"
-                                   Foreground="#666" FontSize="10" FontWeight="SemiBold"
-                                   Margin="0,0,0,8"/>
+                                   Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                                   Margin="0,0,0,8" FontFamily="Segoe UI"/>
                         <Border x:Name="KeyBorder"
-                                Background="#111" CornerRadius="8"
-                                BorderBrush="#3A3A3C" BorderThickness="1"
-                                Height="44" Cursor="Hand"
+                                Background="#F7F7F7" CornerRadius="10"
+                                BorderBrush="#EBEBEB" BorderThickness="1"
+                                Height="46" Cursor="Hand"
                                 MouseLeftButtonDown="KeyBorder_Click">
                             <Grid>
                                 <TextBlock x:Name="TxtKey" Text="Ctrl Droit"
-                                           Foreground="White" FontSize="14" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                           Foreground="#0D0D0D" FontSize="14" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontFamily="Segoe UI"/>
                             </Grid>
                         </Border>
                         <TextBlock x:Name="TxtListening"
                                    Text="⌨  Appuyez sur la touche souhaitée…"
-                                   Foreground="#FF9F0A" FontSize="12"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="#F59E0B" FontSize="12"
+                                   HorizontalAlignment="Center"
                                    Margin="0,8,0,0"
-                                   Visibility="Collapsed"/>
+                                   Visibility="Collapsed" FontFamily="Segoe UI"/>
 
-                        <!-- Language -->
                         <TextBlock Text="LANGUE DE TRANSCRIPTION"
-                                   Foreground="#666" FontSize="10" FontWeight="SemiBold"
-                                   Margin="0,20,0,8"/>
+                                   Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                                   Margin="0,22,0,8" FontFamily="Segoe UI"/>
                         <ComboBox x:Name="CmbLanguage"
-                                  Height="40" Background="#111"
-                                  Foreground="White" BorderBrush="#3A3A3C"
-                                  FontSize="13">
+                                  Height="46" FontSize="13" FontFamily="Segoe UI"
+                                  Background="#F7F7F7" Foreground="#0D0D0D"
+                                  BorderBrush="#EBEBEB" BorderThickness="1">
+
+                            <!-- Custom item style -->
                             <ComboBox.ItemContainerStyle>
                                 <Style TargetType="ComboBoxItem">
-                                    <Setter Property="Background" Value="#1C1C1E"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                    <Setter Property="Padding"    Value="10,6"/>
+                                    <Setter Property="FontFamily"            Value="Segoe UI"/>
+                                    <Setter Property="FontSize"              Value="13"/>
+                                    <Setter Property="Foreground"            Value="#0D0D0D"/>
+                                    <Setter Property="Background"            Value="Transparent"/>
+                                    <Setter Property="Padding"               Value="14,9"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ComboBoxItem">
+                                                <Border x:Name="Bd"
+                                                        Background="{TemplateBinding Background}"
+                                                        CornerRadius="7"
+                                                        Margin="4,2"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#F0F0F0"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#EBEBEB"/>
+                                                        <Setter Property="Foreground" Value="#0D0D0D"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
                                 </Style>
                             </ComboBox.ItemContainerStyle>
+
+                            <!-- Custom ComboBox template -->
+                            <ComboBox.Template>
+                                <ControlTemplate TargetType="ComboBox">
+                                    <Grid>
+                                        <!-- Selected value display -->
+                                        <Border x:Name="MainBorder"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="10">
+                                            <Grid>
+                                                <ContentPresenter x:Name="ContentSite"
+                                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                                  Margin="14,0,40,0"
+                                                                  VerticalAlignment="Center"
+                                                                  HorizontalAlignment="Left"/>
+                                                <!-- Chevron -->
+                                                <TextBlock Text="⌄" FontSize="16" Foreground="#B0B0B0"
+                                                           HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                           Margin="0,0,14,4" IsHitTestVisible="False"/>
+                                                <!-- Toggle -->
+                                                <ToggleButton
+                                                    IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                    Background="Transparent" BorderThickness="0"
+                                                    Focusable="False" Cursor="Hand">
+                                                    <ToggleButton.Style>
+                                                        <Style TargetType="ToggleButton">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="ToggleButton">
+                                                                        <Border Background="Transparent"/>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </ToggleButton.Style>
+                                                </ToggleButton>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Dropdown popup -->
+                                        <Popup x:Name="PART_Popup"
+                                               Placement="Bottom"
+                                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                                               AllowsTransparency="True"
+                                               Focusable="False"
+                                               PopupAnimation="Fade">
+                                            <Border MinWidth="{TemplateBinding ActualWidth}"
+                                                    MaxHeight="280"
+                                                    Background="White"
+                                                    BorderBrush="#EBEBEB"
+                                                    BorderThickness="1"
+                                                    CornerRadius="12"
+                                                    Margin="0,4,0,0"
+                                                    Padding="0,4">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                                      Opacity="0.10" Color="Black"/>
+                                                </Border.Effect>
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                              HorizontalScrollBarVisibility="Disabled">
+                                                    <ItemsPresenter/>
+                                                </ScrollViewer>
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="MainBorder" Property="BorderBrush" Value="#C0C0C0"/>
+                                        </Trigger>
+                                        <Trigger Property="IsDropDownOpen" Value="True">
+                                            <Setter TargetName="MainBorder" Property="BorderBrush" Value="#0D0D0D"/>
+                                            <Setter TargetName="MainBorder" Property="BorderThickness" Value="1.5"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ComboBox.Template>
+
                             <ComboBoxItem Tag="auto" Content="🌐  Détection automatique"/>
                             <ComboBoxItem Tag="fr"   Content="🇫🇷  Français"/>
                             <ComboBoxItem Tag="en"   Content="🇬🇧  English"/>
@@ -118,15 +264,16 @@
                     </StackPanel>
                 </TabItem>
 
-                <!-- ── TAB 2 : Traitement du texte ── -->
+                <!-- ── TAB 2 : Texte ── -->
                 <TabItem Header="Texte">
-                    <StackPanel Margin="0,16,0,0">
+                    <StackPanel Margin="0,18,0,0">
 
                         <TextBlock Text="NETTOYAGE AUTOMATIQUE"
-                                   Foreground="#666" FontSize="10" FontWeight="SemiBold"
-                                   Margin="0,0,0,12"/>
+                                   Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                                   Margin="0,0,0,12" FontFamily="Segoe UI"/>
 
-                        <Border Background="#111" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
+                        <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12" Margin="0,0,0,8"
+                                BorderBrush="#EBEBEB" BorderThickness="1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -134,16 +281,17 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Supprimer les mots de remplissage"
-                                               Foreground="White" FontSize="13"/>
+                                               Foreground="#0D0D0D" FontSize="13" FontFamily="Segoe UI"/>
                                     <TextBlock Text="euh, hum, ben, voilà, donc…"
-                                               Foreground="#555" FontSize="11" Margin="0,2,0,0"/>
+                                               Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0" FontFamily="Segoe UI"/>
                                 </StackPanel>
                                 <CheckBox x:Name="ChkFillers" Grid.Column="1"
                                           VerticalAlignment="Center" IsChecked="True"/>
                             </Grid>
                         </Border>
 
-                        <Border Background="#111" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
+                        <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12" Margin="0,0,0,8"
+                                BorderBrush="#EBEBEB" BorderThickness="1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -151,16 +299,17 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Supprimer les répétitions"
-                                               Foreground="White" FontSize="13"/>
+                                               Foreground="#0D0D0D" FontSize="13" FontFamily="Segoe UI"/>
                                     <TextBlock Text="«je je veux» → «je veux»"
-                                               Foreground="#555" FontSize="11" Margin="0,2,0,0"/>
+                                               Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0" FontFamily="Segoe UI"/>
                                 </StackPanel>
                                 <CheckBox x:Name="ChkDuplicates" Grid.Column="1"
                                           VerticalAlignment="Center" IsChecked="True"/>
                             </Grid>
                         </Border>
 
-                        <Border Background="#111" CornerRadius="8" Padding="14,10" Margin="0,0,0,8">
+                        <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12" Margin="0,0,0,8"
+                                BorderBrush="#EBEBEB" BorderThickness="1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -168,16 +317,17 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Majuscule automatique"
-                                               Foreground="White" FontSize="13"/>
+                                               Foreground="#0D0D0D" FontSize="13" FontFamily="Segoe UI"/>
                                     <TextBlock Text="Capitalise la première lettre"
-                                               Foreground="#555" FontSize="11" Margin="0,2,0,0"/>
+                                               Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0" FontFamily="Segoe UI"/>
                                 </StackPanel>
                                 <CheckBox x:Name="ChkCapitalize" Grid.Column="1"
                                           VerticalAlignment="Center" IsChecked="True"/>
                             </Grid>
                         </Border>
 
-                        <Border Background="#111" CornerRadius="8" Padding="14,10">
+                        <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12"
+                                BorderBrush="#EBEBEB" BorderThickness="1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -185,9 +335,9 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Sauvegarder l'historique"
-                                               Foreground="White" FontSize="13"/>
+                                               Foreground="#0D0D0D" FontSize="13" FontFamily="Segoe UI"/>
                                     <TextBlock Text="Enregistre chaque dictée localement"
-                                               Foreground="#555" FontSize="11" Margin="0,2,0,0"/>
+                                               Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0" FontFamily="Segoe UI"/>
                                 </StackPanel>
                                 <CheckBox x:Name="ChkHistory" Grid.Column="1"
                                           VerticalAlignment="Center" IsChecked="True"/>
@@ -197,30 +347,124 @@
                     </StackPanel>
                 </TabItem>
 
-                <!-- ── TAB 3 : Dictionnaire personnel ── -->
+                <!-- ── TAB 3 : Compte ── -->
+                <TabItem Header="Compte">
+                    <StackPanel Margin="0,18,0,0">
+
+                        <!-- Identité -->
+                        <Border Background="#F7F7F7" CornerRadius="10" Padding="16,14"
+                                BorderBrush="#EBEBEB" BorderThickness="1" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="COMPTE CONNECTÉ"
+                                           Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                                           Margin="0,0,0,10" FontFamily="Segoe UI"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="Email" Foreground="#9B9B9B" FontSize="12"
+                                               Width="60" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                                    <TextBlock x:Name="TxtAccountEmail" Text="—"
+                                               Foreground="#0D0D0D" FontSize="13" FontWeight="SemiBold"
+                                               FontFamily="Segoe UI"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Plan" Foreground="#9B9B9B" FontSize="12"
+                                               Width="60" VerticalAlignment="Center" FontFamily="Segoe UI"/>
+                                    <Border x:Name="AccountPlanBadge" CornerRadius="999" Padding="10,3">
+                                        <TextBlock x:Name="TxtAccountPlan" FontSize="10"
+                                                   FontWeight="Bold" FontFamily="Segoe UI"/>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Gérer le compte -->
+                        <Button x:Name="BtnManageAccount"
+                                Content="Gérer mon compte  →"
+                                Height="44" Cursor="Hand"
+                                Background="#0D0D0D" Foreground="White"
+                                BorderThickness="0"
+                                Click="BtnManageAccount_Click"
+                                Margin="0,0,0,8">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="bg" Property="Background" Value="#2A2A2A"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="FontSize"   Value="13"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="FontFamily" Value="Segoe UI"/>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- Abonnement -->
+                        <Button x:Name="BtnManageBilling"
+                                Content="Gérer mon abonnement  →"
+                                Height="44" Cursor="Hand"
+                                Background="Transparent" Foreground="#0D0D0D"
+                                BorderBrush="#EBEBEB" BorderThickness="1"
+                                Click="BtnManageBilling_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bg"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="10">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="bg" Property="BorderBrush" Value="#C0C0C0"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="FontSize"   Value="13"/>
+                                    <Setter Property="FontFamily" Value="Segoe UI"/>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                    </StackPanel>
+                </TabItem>
+
+                <!-- ── TAB 4 : Dictionnaire ── -->
                 <TabItem Header="Dictionnaire">
-                    <Grid Margin="0,16,0,0">
+                    <Grid Margin="0,18,0,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="10"/>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="10"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
                                    Text="Remplacez automatiquement des mots ou expressions après la transcription."
-                                   Foreground="#888" FontSize="11" TextWrapping="Wrap"/>
+                                   Foreground="#9B9B9B" FontSize="12" TextWrapping="Wrap" FontFamily="Segoe UI"/>
 
-                        <!-- List -->
-                        <Border Grid.Row="2" Background="#111" CornerRadius="8"
-                                BorderBrush="#2C2C2E" BorderThickness="1">
+                        <Border Grid.Row="2" Background="#F7F7F7" CornerRadius="10"
+                                BorderBrush="#EBEBEB" BorderThickness="1">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel x:Name="DictPanel" Margin="8"/>
                             </ScrollViewer>
                         </Border>
 
-                        <!-- Add row -->
                         <Grid Grid.Row="4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -230,28 +474,34 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="TxtDictFrom" Grid.Column="0"
-                                     Height="34" Background="#111" Foreground="White"
-                                     BorderBrush="#3A3A3C" BorderThickness="1"
-                                     Padding="8,0" FontSize="12"
+                                     Height="38" Background="#F7F7F7" Foreground="#0D0D0D"
+                                     BorderBrush="#EBEBEB" BorderThickness="1"
+                                     Padding="10,0" FontSize="12" FontFamily="Segoe UI"
                                      VerticalContentAlignment="Center"/>
                             <TextBox x:Name="TxtDictTo" Grid.Column="2"
-                                     Height="34" Background="#111" Foreground="White"
-                                     BorderBrush="#3A3A3C" BorderThickness="1"
-                                     Padding="8,0" FontSize="12"
+                                     Height="38" Background="#F7F7F7" Foreground="#0D0D0D"
+                                     BorderBrush="#EBEBEB" BorderThickness="1"
+                                     Padding="10,0" FontSize="12" FontFamily="Segoe UI"
                                      VerticalContentAlignment="Center"/>
                             <Button Grid.Column="4" Content="+"
-                                    Width="34" Height="34"
+                                    Width="38" Height="38"
                                     Click="BtnAddDict_Click"
-                                    Background="#0A84FF" Foreground="White"
-                                    BorderThickness="0" FontSize="18" FontWeight="Bold">
+                                    Background="#0D0D0D" Foreground="White"
+                                    BorderThickness="0" FontSize="18" FontWeight="Bold"
+                                    Cursor="Hand">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                    <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bg" Property="Background" Value="#2A2A2A"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -267,47 +517,65 @@
             <!-- Bottom buttons -->
             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button x:Name="BtnCancel" Content="Annuler"
-                        Width="90" Height="34" Margin="0,0,10,0"
-                        Click="BtnCancel_Click"
-                        Background="#2C2C2E" Foreground="#AAA"
-                        BorderBrush="#3A3A3C" BorderThickness="1">
+                        Width="90" Height="36" Margin="0,0,10,0"
+                        Click="BtnCancel_Click" Cursor="Hand"
+                        Background="Transparent" Foreground="#6B6B6B"
+                        BorderBrush="#EBEBEB" BorderThickness="1">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}"
+                                        <Border x:Name="bg"
+                                                Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}"
                                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="8">
+                                                CornerRadius="10">
                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bg" Property="BorderBrush" Value="#C0C0C0"/>
+                                                <Setter Property="Foreground" Value="#0D0D0D"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
+                            <Setter Property="FontSize"   Value="13"/>
+                            <Setter Property="FontFamily" Value="Segoe UI"/>
                         </Style>
                     </Button.Style>
                 </Button>
                 <Button x:Name="BtnSave" Content="Enregistrer"
-                        Width="110" Height="34"
-                        Click="BtnSave_Click"
-                        Background="#0A84FF" Foreground="White"
+                        Width="115" Height="36"
+                        Click="BtnSave_Click" Cursor="Hand"
+                        Background="#0D0D0D" Foreground="White"
                         BorderThickness="0">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                        <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10">
                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bg" Property="Background" Value="#2A2A2A"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
+                            <Setter Property="FontSize"   Value="13"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="FontFamily" Value="Segoe UI"/>
                         </Style>
                     </Button.Style>
                 </Button>
             </StackPanel>
+
         </Grid>
     </Border>
 </Window>

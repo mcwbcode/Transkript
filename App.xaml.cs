@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ public partial class App
     private volatile bool _processing = false;
 
     private AppSettings _settings = new();
+    private string      _plan     = "free";
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -80,12 +82,14 @@ public partial class App
             }
 
             // Récupération du plan
-            string plan = "free";
+            _plan = "free";
+            string plan = _plan;
             if (session != null && !string.IsNullOrEmpty(session.AccessToken))
             {
                 Logger.Write("Récupération du plan…");
                 plan = Task.Run(() => AuthService.GetPlanAsync(session.AccessToken, session.UserId))
                            .GetAwaiter().GetResult() ?? "free";
+                _plan = plan;
                 Logger.Write($"Plan : {plan}");
             }
 
@@ -138,8 +142,11 @@ public partial class App
         _hook.KeyReleased += OnKeyReleased;
         _hook.Install();
 
-        Logger.Write("Services initialisés — lancement InitWhisper");
+        _tray.UpdateRequested += () => Dispatcher.Invoke(OnUpdateRequested);
+
+        Logger.Write("Services initialisés — lancement InitWhisper + UpdateCheck");
         _ = Task.Run(InitWhisperAsync);
+        _ = Task.Run(CheckForUpdateAsync);
     }
 
     // ── Model initialisation ─────────────────────────────────────────────────
@@ -162,11 +169,9 @@ public partial class App
 
             Dispatcher.Invoke(() =>
             {
-                string mode = _transcriber!.UsingCuda ? "GPU (CUDA)" : "CPU";
-                string key  = _settings.HotkeyName;
-                _tray!.SetStatus($"Prêt [{mode}] — maintenez {key} pour dicter");
-                _tray.ShowBalloon("Transkript prêt",
-                    $"Moteur : {mode}. Maintenez {key} pour commencer à dicter.");
+                string key = _settings.HotkeyName;
+                _tray!.SetStatus($"Prêt — {key} pour dicter");
+                _tray.ShowBalloon("Transkript prêt", $"Maintenez {key} pour commencer à dicter.");
             });
         }
         catch (Exception ex)
@@ -196,8 +201,7 @@ public partial class App
             Logger.Write("RecoverTranscriberAsync : OK");
             Dispatcher.Invoke(() =>
             {
-                string mode = _transcriber!.UsingCuda ? "GPU (CUDA)" : "CPU";
-                _tray!.SetStatus($"Prêt [{mode}] — maintenez {_settings.HotkeyName} pour dicter");
+                _tray!.SetStatus($"Prêt — {_settings.HotkeyName} pour dicter");
                 _tray.ShowBalloon("Transkript", "Moteur réinitialisé avec succès.");
             });
         }
@@ -279,7 +283,7 @@ public partial class App
         Logger.Write($"PCM capturé : {pcm.Length} octets ({pcm.Length / (float)(AudioRecorder.SampleRate * 2):F2} s)");
 
         float rms = AudioRecorder.ComputeRms(pcm);
-        if (rms < 0.008f || pcm.Length < AudioRecorder.SampleRate * 2 / 3)
+        if (rms < 0.003f || pcm.Length < AudioRecorder.SampleRate * 2 / 3)
         {
             Logger.Write($"Audio ignoré : rms={rms:F4}, trop court ou silencieux");
             _tray!.SetStatus("Rien détecté");
@@ -309,6 +313,7 @@ public partial class App
             }
             else
             {
+                await Task.Delay(250); // laisser Windows rendre le focus à l'app cible
                 PasteHelper.Paste(text);
                 int words = TextProcessor.CountWords(text);
                 _tray.SetStatus($"✓  {words} mot{(words > 1 ? "s" : "")} ({text.Length} car.)");
@@ -337,10 +342,9 @@ public partial class App
 
     private void RestoreReadyStatus()
     {
-        string mode  = _transcriber?.UsingCuda == true ? "GPU (CUDA)" : "CPU";
         int    today = HistoryManager.GetTodayWordCount();
-        string words = today > 0 ? $" | {today} mots aujourd'hui" : "";
-        _tray?.SetStatus($"Prêt [{mode}]{words} — maintenez {_settings.HotkeyName} pour dicter");
+        string words = today > 0 ? $" · {today} mots aujourd'hui" : "";
+        _tray?.SetStatus($"Prêt{words} — {_settings.HotkeyName} pour dicter");
     }
 
     // ── Paramètres ───────────────────────────────────────────────────────────
@@ -348,6 +352,7 @@ public partial class App
     private void OpenSettings()
     {
         var win = new SettingsWindow(_settings);
+        win.SetAccountPlan(_plan);
         if (win.ShowDialog() != true) return;
 
         bool languageChanged = win.NewLanguage != _settings.Language;
@@ -373,6 +378,60 @@ public partial class App
         }
         else
         {
+            RestoreReadyStatus();
+        }
+    }
+
+    // ── Mise à jour ───────────────────────────────────────────────────────────
+
+    private UpdateChecker.UpdateInfo? _pendingUpdate;
+
+    private async Task CheckForUpdateAsync()
+    {
+        // Attendre 10 s après le démarrage pour ne pas surcharger le démarrage
+        await Task.Delay(TimeSpan.FromSeconds(10));
+
+        var info = await UpdateChecker.CheckAsync();
+        if (info == null) return;
+
+        _pendingUpdate = info;
+        Dispatcher.Invoke(() =>
+            _tray!.ShowUpdateAvailable(info.Latest.ToString(3)));
+    }
+
+    private async void OnUpdateRequested()
+    {
+        if (_pendingUpdate == null) return;
+
+        _tray!.SetStatus("Téléchargement de la mise à jour…");
+
+        try
+        {
+            var progress = new Progress<int>(pct =>
+                Dispatcher.Invoke(() => _tray!.SetStatus($"Téléchargement… {pct}%")));
+
+            string installerPath = await Task.Run(() =>
+                UpdateChecker.DownloadInstallerAsync(_pendingUpdate.DownloadUrl, progress));
+
+            var result = MessageBox.Show(
+                $"Transkript {_pendingUpdate.Latest.ToString(3)} est prêt à installer.\n\n" +
+                "L'application va se fermer pour lancer l'installation.",
+                "Mise à jour prête",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Information);
+
+            if (result != MessageBoxResult.OK) return;
+
+            Process.Start(new ProcessStartInfo(installerPath) { UseShellExecute = true });
+            Shutdown();
+        }
+        catch (Exception ex)
+        {
+            Logger.Write($"[ERREUR] OnUpdateRequested : {ex.Message}");
+            _tray!.SetStatus("Échec du téléchargement de la mise à jour");
+            MessageBox.Show(
+                $"Le téléchargement a échoué :\n{ex.Message}",
+                "Transkript", MessageBoxButton.OK, MessageBoxImage.Warning);
             RestoreReadyStatus();
         }
     }

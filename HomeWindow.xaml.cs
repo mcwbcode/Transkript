@@ -22,36 +22,36 @@ public partial class HomeWindow : Window
         {
             case "pro":
                 TxtPlan.Text              = "PRO";
-                PlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(4, 26, 12));
-                PlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(15, 74, 37));
+                PlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(240, 253, 244));
+                PlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(187, 247, 208));
                 PlanBadge.BorderThickness = new Thickness(1);
-                TxtPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(74, 222, 128));
+                TxtPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(22, 163, 74));
                 TxtStatusMsg.Text         = "Votre accès Pro est actif.";
-                TxtStatusMsg.Foreground   = new SolidColorBrush(WpfColor.FromRgb(74, 222, 128));
+                TxtStatusMsg.Foreground   = new SolidColorBrush(WpfColor.FromRgb(22, 163, 74));
                 BtnLaunch.Visibility      = Visibility.Visible;
                 PnlUpgrade.Visibility     = Visibility.Collapsed;
                 break;
 
             case "beta":
                 TxtPlan.Text              = "BETA";
-                PlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(29, 20, 0));
-                PlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(107, 72, 0));
+                PlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(255, 251, 235));
+                PlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(253, 230, 138));
                 PlanBadge.BorderThickness = new Thickness(1);
-                TxtPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(251, 191, 36));
+                TxtPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(217, 119, 6));
                 TxtStatusMsg.Text         = "Accès Pro requis.";
-                TxtStatusMsg.Foreground   = new SolidColorBrush(WpfColor.FromRgb(90, 90, 90));
+                TxtStatusMsg.Foreground   = new SolidColorBrush(WpfColor.FromRgb(155, 155, 155));
                 BtnLaunch.Visibility      = Visibility.Collapsed;
                 PnlUpgrade.Visibility     = Visibility.Visible;
                 break;
 
             default: // free
                 TxtPlan.Text              = "FREE";
-                PlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(20, 20, 20));
-                PlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(50, 50, 50));
+                PlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(245, 245, 245));
+                PlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(235, 235, 235));
                 PlanBadge.BorderThickness = new Thickness(1);
-                TxtPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(100, 100, 100));
+                TxtPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(107, 107, 107));
                 TxtStatusMsg.Text         = "Accès Pro requis.";
-                TxtStatusMsg.Foreground   = new SolidColorBrush(WpfColor.FromRgb(80, 80, 80));
+                TxtStatusMsg.Foreground   = new SolidColorBrush(WpfColor.FromRgb(155, 155, 155));
                 BtnLaunch.Visibility      = Visibility.Collapsed;
                 PnlUpgrade.Visibility     = Visibility.Visible;
                 break;

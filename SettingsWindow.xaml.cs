@@ -1,10 +1,15 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using WpfColor     = System.Windows.Media.Color;
+using Orientation  = System.Windows.Controls.Orientation;
+using Button       = System.Windows.Controls.Button;
+using Cursors      = System.Windows.Input.Cursors;
 
 namespace Transkript;
 
@@ -48,7 +53,55 @@ public partial class SettingsWindow : Window
             _dictEntries.Add(new DictionaryEntry { From = entry.From, To = entry.To });
             AddDictRow(entry.From, entry.To);
         }
+
+        // ── Account tab ──────────────────────────────────────────────────
+        LoadAccountInfo();
     }
+
+    private const string AccountUrl  = "https://transkript.app/account";
+    private const string BillingUrl  = "https://transkript.app/billing";
+
+    private void LoadAccountInfo()
+    {
+        var session = AuthService.LoadSession();
+        if (session == null) return;
+
+        TxtAccountEmail.Text = session.Email;
+    }
+
+    public void SetAccountPlan(string plan)
+    {
+        switch (plan)
+        {
+            case "pro":
+                TxtAccountPlan.Text              = "PRO";
+                AccountPlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(240, 253, 244));
+                AccountPlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(187, 247, 208));
+                AccountPlanBadge.BorderThickness = new Thickness(1);
+                TxtAccountPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(22, 163, 74));
+                break;
+            case "beta":
+                TxtAccountPlan.Text              = "BETA";
+                AccountPlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(255, 251, 235));
+                AccountPlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(253, 230, 138));
+                AccountPlanBadge.BorderThickness = new Thickness(1);
+                TxtAccountPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(217, 119, 6));
+                break;
+            default:
+                TxtAccountPlan.Text              = "FREE";
+                AccountPlanBadge.Background      = new SolidColorBrush(WpfColor.FromRgb(245, 245, 245));
+                AccountPlanBadge.BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(235, 235, 235));
+                AccountPlanBadge.BorderThickness = new Thickness(1);
+                TxtAccountPlan.Foreground        = new SolidColorBrush(WpfColor.FromRgb(107, 107, 107));
+                break;
+        }
+    }
+
+    private void BtnManageAccount_Click(object sender, RoutedEventArgs e)
+        => Process.Start(new ProcessStartInfo(AccountUrl) { UseShellExecute = true });
+
+    private void BtnManageBilling_Click(object sender, RoutedEventArgs e)
+        => Process.Start(new ProcessStartInfo(BillingUrl) { UseShellExecute = true });
 
     // ── Language helper ──────────────────────────────────────────────────
 
@@ -136,10 +189,12 @@ public partial class SettingsWindow : Window
     {
         var row = new Border
         {
-            Background   = new SolidColorBrush(WpfColor.FromRgb(0x2C, 0x2C, 0x2E)),
-            CornerRadius = new CornerRadius(6),
-            Padding      = new Thickness(10, 6, 10, 6),
-            Margin       = new Thickness(0, 0, 0, 4)
+            Background      = new SolidColorBrush(Colors.White),
+            BorderBrush     = new SolidColorBrush(WpfColor.FromRgb(0xEB, 0xEB, 0xEB)),
+            BorderThickness = new Thickness(1),
+            CornerRadius    = new CornerRadius(8),
+            Padding         = new Thickness(12, 7, 12, 7),
+            Margin          = new Thickness(0, 0, 0, 4)
         };
 
         var sp = new StackPanel { Orientation = Orientation.Horizontal };
@@ -149,25 +204,25 @@ public partial class SettingsWindow : Window
         var lblFrom = new TextBlock
         {
             Text              = from,
-            Foreground        = new SolidColorBrush(Colors.White),
+            Foreground        = new SolidColorBrush(WpfColor.FromRgb(0x0D, 0x0D, 0x0D)),
             FontSize          = 12,
             VerticalAlignment = VerticalAlignment.Center,
-            Margin            = new Thickness(0, 0, 4, 0)
+            Margin            = new Thickness(0, 0, 6, 0)
         };
         var arrow = new TextBlock
         {
             Text              = "→",
-            Foreground        = new SolidColorBrush(WpfColor.FromRgb(0x55, 0x55, 0x55)),
+            Foreground        = new SolidColorBrush(WpfColor.FromRgb(0xC0, 0xC0, 0xC0)),
             FontSize          = 12,
             VerticalAlignment = VerticalAlignment.Center,
-            Margin            = new Thickness(0, 0, 4, 0)
+            Margin            = new Thickness(0, 0, 6, 0)
         };
         var lblTo = new TextBlock
         {
             Text              = displayTo,
             Foreground        = new SolidColorBrush(string.IsNullOrEmpty(to)
-                ? WpfColor.FromRgb(0x88, 0x88, 0x88)
-                : WpfColor.FromRgb(0x30, 0xD1, 0x58)),
+                ? WpfColor.FromRgb(0xC0, 0xC0, 0xC0)
+                : WpfColor.FromRgb(0x16, 0xA3, 0x4A)),
             FontSize          = 12,
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -179,8 +234,8 @@ public partial class SettingsWindow : Window
             Width           = 20,
             Height          = 20,
             FontSize        = 10,
-            Background      = new SolidColorBrush(WpfColor.FromRgb(0x55, 0x55, 0x55)),
-            Foreground      = new SolidColorBrush(Colors.White),
+            Background      = new SolidColorBrush(WpfColor.FromRgb(0xF0, 0xF0, 0xF0)),
+            Foreground      = new SolidColorBrush(WpfColor.FromRgb(0x6B, 0x6B, 0x6B)),
             BorderThickness = new Thickness(0),
             Cursor          = Cursors.Hand
         };
