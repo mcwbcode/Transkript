@@ -796,23 +796,42 @@ async function handleAuth(e) {
 
 // MARQUEE
 const row1 = [
-  {i:'📝',n:'Word'},{i:'📊',n:'Excel'},{i:'📧',n:'Outlook'},{i:'💬',n:'Teams'},
-  {i:'📓',n:'Bloc-notes'},{i:'🌐',n:'Chrome'},{i:'🦊',n:'Firefox'},{i:'📨',n:'Gmail'},
-  {i:'💼',n:'Slack'},{i:'🎮',n:'Discord'},{i:'📖',n:'Notion'},{i:'🗒️',n:'OneNote'},
-  {i:'💻',n:'VS Code'},{i:'📹',n:'Zoom'},{i:'✏️',n:'WordPad'},{i:'🔷',n:'PowerPoint'}
+  {s:'microsoftword',n:'Word'},
+  {s:'microsoftexcel',n:'Excel'},
+  {s:'microsoftoutlook',n:'Outlook'},
+  {s:'microsoftteams',n:'Teams'},
+  {s:'googlechrome',n:'Chrome'},
+  {s:'firefoxbrowser',n:'Firefox'},
+  {s:'gmail',n:'Gmail'},
+  {s:'slack',n:'Slack'},
+  {s:'discord',n:'Discord'},
+  {s:'notion',n:'Notion'},
+  {s:'microsoftonenote',n:'OneNote'},
+  {s:'visualstudiocode',n:'VS Code'},
+  {s:'zoom',n:'Zoom'},
+  {s:'microsoftpowerpoint',n:'PowerPoint'},
 ];
 const row2 = [
-  {i:'🖊️',n:'LibreOffice'},{i:'🌍',n:'Edge'},{i:'📋',n:'Notepad++'},{i:'🤖',n:'ChatGPT'},
-  {i:'📬',n:'Thunderbird'},{i:'🎯',n:'Trello'},{i:'⚡',n:'Copilot'},{i:'🗂️',n:'SharePoint'},
-  {i:'📱',n:'WhatsApp Web'},{i:'✉️',n:'ProtonMail'},{i:'📌',n:'Obsidian'},
-  {i:'🔍',n:'Sublime Text'},{i:'🗓️',n:'Google Agenda'},{i:'📐',n:'Draw.io'}
+  {s:'libreoffice',n:'LibreOffice'},
+  {s:'microsoftedge',n:'Edge'},
+  {s:'notepadplusplus',n:'Notepad++'},
+  {s:'openai',n:'ChatGPT'},
+  {s:'thunderbird',n:'Thunderbird'},
+  {s:'trello',n:'Trello'},
+  {s:'microsoftcopilot',n:'Copilot'},
+  {s:'microsoftsharepoint',n:'SharePoint'},
+  {s:'whatsapp',n:'WhatsApp'},
+  {s:'protonmail',n:'ProtonMail'},
+  {s:'obsidian',n:'Obsidian'},
+  {s:'sublimetext',n:'Sublime Text'},
+  {s:'googlecalendar',n:'Google Agenda'},
 ];
 function buildMq(id, items) {
   const el = document.getElementById(id);
-  [...items, ...items].forEach(({ i, n }) => {
+  [...items, ...items].forEach(({ s, n }) => {
     const d = document.createElement('div');
     d.className = 'mq-chip';
-    d.innerHTML = `<span>${i}</span>${n}`;
+    d.innerHTML = `<img src="https://cdn.simpleicons.org/${s}/888888" width="15" height="15" alt="${n}" style="flex-shrink:0">${n}`;
     el.appendChild(d);
   });
 }
