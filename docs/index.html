@@ -338,12 +338,7 @@
       </ul>
       <div class="nav-actions">
         <button class="btn btn-ghost" onclick="openModal('login')">Se connecter</button>
-        <a href="https://github.com/mcwbcode/Transkript/releases/download/v1/Transkript-Setup.exe" class="btn btn-dark">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Télécharger
-        </a>
+        <button class="btn btn-dark" onclick="openModal('signup')">Créer un compte</button>
       </div>
     </div>
   </div>
@@ -362,13 +357,8 @@
       sans cloud, sans abonnement, jusqu'à 5× plus vite qu'au clavier.
     </p>
     <div class="hero-cta">
-      <a href="https://github.com/mcwbcode/Transkript/releases/download/v1/Transkript-Setup.exe" class="btn btn-red">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Télécharger gratuitement
-      </a>
-      <button class="btn btn-outline" onclick="openModal('signup')">Créer un compte</button>
+      <button class="btn btn-red" onclick="openModal('signup')">Commencer gratuitement</button>
+      <button class="btn btn-outline" onclick="openModal('login')">Se connecter</button>
     </div>
     <div class="hero-note">
       <span class="hero-note-item">Windows 10/11</span>
@@ -619,13 +609,8 @@
   <div class="container">
     <h2>Prêt à dicter ?</h2>
     <p>Rejoignez ceux qui écrivent plus vite avec leur voix.</p>
-    <a href="https://github.com/mcwbcode/Transkript/releases/download/v1/Transkript-Setup.exe" class="btn btn-white" style="padding:16px 36px;font-size:16px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-      Télécharger Transkript
-    </a>
-    <div class="dl-note">Gratuit · Windows 10/11 · v1.0.0 · ~488 Mo</div>
+    <button class="btn btn-white" style="padding:16px 36px;font-size:16px" onclick="openModal('signup')">Créer un compte gratuitement</button>
+    <div class="dl-note">Gratuit · Windows 10/11 · ~488 Mo</div>
   </div>
 </section>
 
