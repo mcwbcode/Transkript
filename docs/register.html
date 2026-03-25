@@ -1,376 +1,288 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Transkript — Créer un compte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #0d0d0d;
-      --surface: #111;
-      --border:  #2e2e2e;
-      --text:    #f0f0f0;
-      --muted:   #666;
-      --red:     #e5383b;
-      --green:   #4ade80;
-      --radius:  10px;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.14);
+      --text: #111111;
+      --text-2: #555555;
+      --text-3: #999999;
+      --red: #e5383b;
+      --red-dark: #c0292c;
+      --red-light: #fff1f1;
+      --green: #22c55e;
+      --radius-sm: 10px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --radius-pill: 9999px;
+      --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
+    html { -webkit-font-smoothing: antialiased; }
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 24px;
+      font-family: var(--font); background: var(--bg);
+      color: var(--text); min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px;
     }
 
-    /* ── Card ─────────────────────────────────────────────────────────────── */
-    .card {
-      background: #111;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 40px 36px 36px;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    /* ── Logo ─────────────────────────────────────────────────────────────── */
+    /* LOGO */
     .logo {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 32px;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; color: var(--text);
+      font-weight: 800; font-size: 18px; margin-bottom: 32px;
     }
-    .logo-icon {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .dot {
-      width: 14px; height: 14px;
-      background: var(--red);
-      border-radius: 50%;
-    }
-    .bars {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .bars span {
-      display: block;
-      width: 3px;
-      background: #444;
-      border-radius: 2px;
-    }
-    .logo-name {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -.02em;
-    }
-    .logo-sub {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* ── Tabs ─────────────────────────────────────────────────────────────── */
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      background: #0a0a0a;
-      border-radius: 8px;
-      padding: 3px;
-      margin-bottom: 24px;
-      gap: 2px;
-    }
-    .tab {
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .15s, color .15s;
-    }
-    .tab.active   { background: var(--red); color: #fff; }
-    .tab.inactive { background: transparent; color: var(--muted); }
-    .tab.inactive:hover { color: #aaa; }
-
-    /* ── Form ─────────────────────────────────────────────────────────────── */
-    .field { margin-bottom: 14px; }
-
-    label {
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-
-    input[type="email"],
-    input[type="password"],
-    input[type="text"] {
-      width: 100%;
-      background: #0d0d0d;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 14px;
-      padding: 11px 14px;
-      outline: none;
-      transition: border-color .15s;
-      font-family: inherit;
-    }
-    input:focus { border-color: var(--red); }
-
-    /* ── Messages ─────────────────────────────────────────────────────────── */
-    .msg {
-      font-size: 13px;
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 16px;
-      display: none;
-    }
-    .msg.error   { background: #1a0505; border: 1px solid #5a1010; color: #f87171; }
-    .msg.success { background: #041a0c; border: 1px solid #0f4a25; color: var(--green); }
-    .msg.show    { display: block; }
-
-    /* ── Submit ───────────────────────────────────────────────────────────── */
-    .btn {
-      width: 100%;
-      background: var(--red);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 12px;
-      cursor: pointer;
-      transition: background .15s, opacity .15s;
-      font-family: inherit;
-      margin-top: 6px;
-    }
-    .btn:hover    { background: #c9292c; }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-
-    /* ── Footer lien ──────────────────────────────────────────────────────── */
-    .footer-link {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .footer-link a { color: #888; text-decoration: underline; }
-    .footer-link a:hover { color: var(--text); }
-
-    /* ── Success screen ───────────────────────────────────────────────────── */
-    #screen-success {
-      display: none;
-      text-align: center;
-    }
-    .check-icon {
-      width: 56px; height: 56px;
-      background: #041a0c;
-      border: 2px solid #0f4a25;
-      border-radius: 50%;
+    .logo-mark {
+      width: 32px; height: 32px; background: var(--red); border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 26px;
-      margin: 0 auto 20px;
     }
-    #screen-success h2 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 10px;
+    .logo-mark svg { width: 18px; height: 18px; fill: white; }
+
+    /* CARD */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 40px 36px;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
     }
-    #screen-success p {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 20px;
+
+    /* TABS */
+    .auth-tabs { display: flex; background: rgba(0,0,0,0.04); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
+    .auth-tab {
+      flex: 1; padding: 8px 14px; border-radius: 7px; border: none;
+      background: transparent; font-family: var(--font); font-size: 13.5px; font-weight: 600;
+      color: var(--text-2); cursor: pointer; transition: all var(--transition);
     }
-    .btn-secondary {
-      display: inline-block;
-      padding: 10px 24px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 13px;
-      text-decoration: none;
-      transition: border-color .15s;
+    .auth-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+
+    /* FORM */
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-2); margin-bottom: 5px; }
+    .form-input {
+      width: 100%; padding: 11px 13px; border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-sm); font-family: var(--font); font-size: 14.5px;
+      color: var(--text); background: #fff; outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
     }
-    .btn-secondary:hover { border-color: #555; }
+    .form-input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(229,56,59,.1); }
+    .form-input::placeholder { color: var(--text-3); }
+    .confirm-wrap { display: none; }
+    .btn {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 13px; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 15px; font-weight: 700;
+      cursor: pointer; border: none; background: #111; color: #fff;
+      transition: all var(--transition); margin-top: 6px;
+    }
+    .btn:hover { background: #333; }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ALERTS */
+    .alert { padding: 11px 14px; border-radius: var(--radius-sm); font-size: 13.5px; margin-bottom: 14px; display: none; }
+    .alert.show { display: block; }
+    .alert-error { background: var(--red-light); color: #b91c1c; border: 1px solid rgba(229,56,59,.18); }
+    .alert-success { background: #f0fdf4; color: #15803d; border: 1px solid rgba(34,197,94,.22); }
+
+    /* FOOTER LINK */
+    .card-foot { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-3); }
+    .card-foot a { color: var(--red); text-decoration: none; font-weight: 600; }
+    .card-foot a:hover { text-decoration: underline; }
+
+    /* SUCCESS SCREEN */
+    .success-screen { display: none; text-align: center; }
+    .success-screen.show { display: block; }
+    .success-icon {
+      width: 64px; height: 64px; background: #f0fdf4; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 30px;
+    }
+    .success-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 10px; }
+    .success-desc { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 24px; }
+    .btn-goto {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 12px 28px; border-radius: var(--radius-pill);
+      background: var(--red); color: #fff; text-decoration: none;
+      font-family: var(--font); font-size: 14px; font-weight: 700;
+      transition: all var(--transition);
+    }
+    .btn-goto:hover { background: var(--red-dark); transform: translateY(-1px); }
+
+    /* SPINNER */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
+
+    /* HOME LINK */
+    .home-link { margin-top: 20px; font-size: 13px; color: var(--text-3); text-align: center; }
+    .home-link a { color: var(--text-2); text-decoration: none; }
+    .home-link a:hover { color: var(--text); text-decoration: underline; }
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <a href="index.html" class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1.5" y="4" width="2" height="8" rx="1"/>
+        <rect x="5" y="1.5" width="2" height="13" rx="1"/>
+        <rect x="8.5" y="5" width="2" height="6" rx="1"/>
+        <rect x="12" y="2.5" width="2" height="11" rx="1"/>
+      </svg>
+    </div>
+    Transkript
+  </a>
 
-    <!-- Logo -->
-    <div class="logo">
-      <div class="logo-icon">
-        <div class="dot"></div>
-        <div class="bars">
-          <span style="height:5px"></span>
-          <span style="height:9px"></span>
-          <span style="height:15px"></span>
-          <span style="height:20px"></span>
-          <span style="height:15px"></span>
-          <span style="height:9px"></span>
-          <span style="height:5px"></span>
-        </div>
-      </div>
-      <div class="logo-name">Transkript</div>
-      <div class="logo-sub">Dictée vocale locale</div>
+  <!-- AUTH FORM -->
+  <div class="card" id="authCard">
+    <div class="auth-tabs">
+      <button class="auth-tab" id="tab-login" onclick="switchTab('login')">Se connecter</button>
+      <button class="auth-tab active" id="tab-signup" onclick="switchTab('signup')">Créer un compte</button>
     </div>
 
-    <!-- ── Formulaire ─────────────────────────────────────────────────────── -->
-    <div id="screen-form">
+    <div id="alertMsg" class="alert"></div>
 
-      <!-- Onglets -->
-      <div class="tabs">
-        <button class="tab inactive" id="tab-login"  onclick="setTab('login')">Connexion</button>
-        <button class="tab active"   id="tab-signup" onclick="setTab('signup')">Inscription</button>
+    <form onsubmit="handleAuth(event)">
+      <div class="form-group">
+        <label class="form-label" for="email">Adresse email</label>
+        <input class="form-input" type="email" id="email" placeholder="vous@exemple.com" required autocomplete="email">
       </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Mot de passe</label>
+        <input class="form-input" type="password" id="password" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+      </div>
+      <div class="form-group confirm-wrap" id="confirmWrap">
+        <label class="form-label" for="confirm">Confirmer le mot de passe</label>
+        <input class="form-input" type="password" id="confirm" placeholder="••••••••" minlength="6" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn" id="submitBtn">Créer un compte</button>
+    </form>
 
-      <!-- Messages -->
-      <div id="msg" class="msg"></div>
-
-      <!-- Champs -->
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="email" placeholder="toi@exemple.com" autocomplete="email"/>
-      </div>
-      <div class="field">
-        <label>Mot de passe</label>
-        <input type="password" id="password" placeholder="6 caractères minimum" autocomplete="new-password"/>
-      </div>
-      <div class="field" id="field-confirm">
-        <label>Confirmer le mot de passe</label>
-        <input type="password" id="confirm" placeholder="Répète ton mot de passe"/>
-      </div>
-
-      <button class="btn" id="btn-submit" onclick="handleSubmit()">Créer mon compte</button>
-
-      <div class="footer-link" id="footer-link">
-        Déjà un compte ? <a href="#" onclick="setTab('login'); return false;">Se connecter</a>
-      </div>
+    <div class="card-foot">
+      <span id="footText">Déjà un compte ? </span>
+      <a href="#" id="footLink" onclick="switchTabLink(event)">Se connecter</a>
     </div>
-
-    <!-- ── Écran succès ────────────────────────────────────────────────────── -->
-    <div id="screen-success">
-      <div class="check-icon">✓</div>
-      <h2 id="success-title">Compte créé !</h2>
-      <p id="success-body">Vérifie ta boîte mail pour confirmer ton adresse,<br>puis ouvre Transkript et connecte-toi.</p>
-      <a href="index.html" class="btn-secondary">← Retour au téléchargement</a>
-    </div>
-
   </div>
 
-  <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script>
-    const { createClient } = supabase;
-    const sb = createClient(
-      'https://gotfmgkrjqxzhrlagscj.supabase.co',
-      'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
-    );
+  <!-- SUCCESS SCREEN -->
+  <div class="card" id="successCard" style="display:none">
+    <div class="success-screen show">
+      <div class="success-icon">✉️</div>
+      <div class="success-title" id="successTitle">Vérifiez votre email</div>
+      <div class="success-desc" id="successDesc">
+        Un lien de confirmation a été envoyé à votre adresse email. Cliquez dessus pour activer votre compte Transkript.
+      </div>
+      <a href="dashboard.html" class="btn-goto">Accéder au dashboard</a>
+    </div>
+  </div>
 
-    let currentTab = 'signup';
+  <div class="home-link">
+    <a href="index.html">← Retour à l'accueil</a>
+  </div>
 
-    function setTab(tab) {
-      currentTab = tab;
-      document.getElementById('tab-login').className  = tab === 'login'  ? 'tab active' : 'tab inactive';
-      document.getElementById('tab-signup').className = tab === 'signup' ? 'tab active' : 'tab inactive';
-      document.getElementById('field-confirm').style.display = tab === 'signup' ? '' : 'none';
-      document.getElementById('btn-submit').textContent = tab === 'signup' ? 'Créer mon compte' : 'Se connecter';
-      document.getElementById('footer-link').innerHTML = tab === 'signup'
-        ? 'Déjà un compte ? <a href="#" onclick="setTab(\'login\'); return false;">Se connecter</a>'
-        : 'Pas encore de compte ? <a href="#" onclick="setTab(\'signup\'); return false;">S\'inscrire</a>';
-      clearMsg();
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const { createClient } = window.supabase;
+const sb = createClient(
+  'https://gotfmgkrjqxzhrlagscj.supabase.co',
+  'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
+);
 
-    function showMsg(text, type) {
-      const el = document.getElementById('msg');
-      el.textContent = text;
-      el.className = 'msg show ' + type;
-    }
-    function clearMsg() {
-      document.getElementById('msg').className = 'msg';
-    }
+let currentTab = 'signup';
 
-    function setLoading(loading) {
-      const btn = document.getElementById('btn-submit');
-      btn.disabled = loading;
-      btn.textContent = loading
-        ? (currentTab === 'signup' ? 'Création…' : 'Connexion…')
-        : (currentTab === 'signup' ? 'Créer mon compte' : 'Se connecter');
-    }
+// Redirect if already logged in
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) window.location.href = 'dashboard.html';
+})();
 
-    async function handleSubmit() {
-      clearMsg();
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirm  = document.getElementById('confirm').value;
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('confirmWrap').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('confirm').required = tab === 'signup';
+  document.getElementById('submitBtn').textContent = tab === 'login' ? 'Se connecter' : 'Créer un compte';
+  document.getElementById('footText').textContent = tab === 'login' ? 'Pas encore de compte ? ' : 'Déjà un compte ? ';
+  document.getElementById('footLink').textContent = tab === 'login' ? 'Créer un compte' : 'Se connecter';
+  clearAlert();
+}
 
-      if (!email)    { showMsg('Saisis ton email.', 'error'); return; }
-      if (!password) { showMsg('Saisis un mot de passe.', 'error'); return; }
+function switchTabLink(e) {
+  e.preventDefault();
+  switchTab(currentTab === 'login' ? 'signup' : 'login');
+}
 
-      if (currentTab === 'signup') {
-        if (password.length < 6)    { showMsg('Mot de passe trop court (6 caractères min).', 'error'); return; }
-        if (password !== confirm)   { showMsg('Les mots de passe ne correspondent pas.', 'error'); return; }
+function showAlert(msg, type = 'error') {
+  const el = document.getElementById('alertMsg');
+  el.textContent = msg;
+  el.className = `alert show alert-${type}`;
+}
+function clearAlert() { document.getElementById('alertMsg').className = 'alert'; }
+
+const ERR = {
+  'Invalid login credentials': 'Email ou mot de passe incorrect.',
+  'Email not confirmed': 'Veuillez confirmer votre email avant de vous connecter.',
+  'User already registered': 'Un compte avec cet email existe déjà.',
+  'Password should be at least 6 characters': 'Le mot de passe doit faire au moins 6 caractères.',
+};
+
+async function handleAuth(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const confirm = document.getElementById('confirm').value;
+  const btn = document.getElementById('submitBtn');
+  clearAlert();
+
+  if (currentTab === 'signup') {
+    if (password.length < 6) { showAlert('Le mot de passe doit faire au moins 6 caractères.'); return; }
+    if (password !== confirm) { showAlert('Les mots de passe ne correspondent pas.'); return; }
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    if (currentTab === 'login') {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      window.location.href = 'dashboard.html';
+    } else {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+
+      if (data.session || data.user?.email_confirmed_at) {
+        window.location.href = 'dashboard.html';
+      } else {
+        // Show success screen
+        document.getElementById('authCard').style.display = 'none';
+        document.getElementById('successCard').style.display = 'block';
+        document.getElementById('successTitle').textContent = 'Vérifiez votre email';
+        document.getElementById('successDesc').textContent =
+          `Un lien de confirmation a été envoyé à ${email}. Cliquez dessus pour activer votre compte Transkript.`;
       }
-
-      setLoading(true);
-
-      try {
-        if (currentTab === 'signup') {
-          const { data, error } = await sb.auth.signUp({ email, password });
-          if (error) { showMsg(friendlyError(error.message), 'error'); }
-          else {
-            document.getElementById('screen-form').style.display = 'none';
-            document.getElementById('screen-success').style.display = 'block';
-            // Si email auto-confirmé → message adapté
-            if (data.session) {
-              document.getElementById('success-title').textContent = 'Compte créé !';
-              document.getElementById('success-body').textContent  = 'Tu peux maintenant ouvrir Transkript et te connecter.';
-            }
-          }
-        } else {
-          const { data, error } = await sb.auth.signInWithPassword({ email, password });
-          if (error) { showMsg(friendlyError(error.message), 'error'); }
-          else       { showMsg('Connecté ! Tu peux fermer cet onglet et utiliser Transkript.', 'success'); }
-        }
-      } catch (e) {
-        showMsg('Erreur réseau. Vérifie ta connexion.', 'error');
-      }
-
-      setLoading(false);
     }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = currentTab === 'login' ? 'Se connecter' : 'Créer un compte';
+    showAlert(ERR[err.message] || err.message || 'Une erreur est survenue. Réessayez.');
+  }
+}
 
-    function friendlyError(msg) {
-      const m = msg.toLowerCase();
-      if (m.includes('invalid login') || m.includes('invalid credentials')) return 'Email ou mot de passe incorrect.';
-      if (m.includes('email not confirm')) return 'Confirme ton email avant de te connecter.';
-      if (m.includes('already registered')) return 'Cet email est déjà utilisé.';
-      if (m.includes('password'))  return 'Mot de passe trop faible (6 caractères min).';
-      if (m.includes('rate limit')) return 'Trop de tentatives. Réessaie dans quelques instants.';
-      return msg;
-    }
-
-    // Soumission via Entrée
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Enter') handleSubmit();
-    });
-  </script>
-
+// Show confirm field for signup by default
+document.getElementById('confirmWrap').style.display = 'block';
+document.getElementById('confirm').required = true;
+</script>
 </body>
 </html>

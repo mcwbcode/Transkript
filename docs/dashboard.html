@@ -1,337 +1,433 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Transkript — Mon espace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #0d0d0d;
-      --surface: #111;
-      --border:  #2e2e2e;
-      --text:    #f0f0f0;
-      --muted:   #666;
-      --red:     #e5383b;
-      --green:   #4ade80;
-      --amber:   #fbbf24;
-      --blue:    #0078d4;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --border: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.13);
+      --text: #111111;
+      --text-2: #555555;
+      --text-3: #999999;
+      --red: #e5383b;
+      --red-dark: #c0292c;
+      --red-light: #fff1f1;
+      --green: #22c55e;
+      --green-light: #f0fdf4;
+      --amber: #f59e0b;
+      --amber-light: #fffbeb;
+      --blue: #3b82f6;
+      --blue-light: #eff6ff;
+      --purple: #8b5cf6;
+      --purple-light: #faf5ff;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --radius-pill: 9999px;
+      --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      min-height: 100vh;
+    html { -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      background: #fff; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
     }
-
-    /* ── Header ────────────────────────────────────────────────────────────── */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      height: 56px;
-      padding: 0 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky; top: 0; z-index: 10;
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 12px;
     }
-
-    .logo {
-      display: flex; align-items: center; gap: 8px;
+    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 16px; }
+    .logo-mark { width: 28px; height: 28px; background: var(--red); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .logo-mark svg { width: 15px; height: 15px; fill: white; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-email { font-size: 13px; color: var(--text-2); font-weight: 500; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius-pill);
+      font-family: var(--font); font-size: 13.5px; font-weight: 600;
+      cursor: pointer; border: none; text-decoration: none;
+      transition: all var(--transition); white-space: nowrap;
     }
-    .dot { width: 11px; height: 11px; background: var(--red); border-radius: 50%; }
-    .logo-name { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+    .btn-ghost { background: transparent; color: var(--text-2); }
+    .btn-ghost:hover { background: rgba(0,0,0,0.05); color: var(--text); }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-red:hover { background: var(--red-dark); }
+    .btn-dark { background: #111; color: #fff; }
+    .btn-dark:hover { background: #333; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border-strong); color: var(--text); }
+    .btn-outline:hover { background: rgba(0,0,0,0.04); }
 
-    .header-right { display: flex; align-items: center; gap: 12px; }
-    .user-email { font-size: 13px; color: var(--muted); }
+    /* LAYOUT */
+    .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr; } }
 
-    .btn-logout {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--muted); border-radius: 6px; font-size: 12px;
-      font-weight: 600; padding: 6px 12px; cursor: pointer;
-      font-family: inherit; transition: border-color .15s, color .15s;
+    /* CARDS */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 26px; }
+    .card-sm { padding: 20px 22px; }
+
+    /* WELCOME */
+    .welcome-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+    .welcome-title { font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .welcome-sub { font-size: 14px; color: var(--text-2); }
+
+    /* PLAN BADGE */
+    .plan-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      border-radius: var(--radius-pill); padding: 5px 13px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
     }
-    .btn-logout:hover { border-color: #555; color: var(--text); }
+    .badge-free    { background: rgba(0,0,0,0.06); color: var(--text-2); }
+    .badge-beta    { background: var(--purple-light); color: var(--purple); border: 1px solid rgba(139,92,246,.2); }
+    .badge-pro     { background: #fefce8; color: #a16207; border: 1px solid rgba(234,179,8,.25); }
+    .badge-expired { background: var(--red-light); color: var(--red); border: 1px solid rgba(229,56,59,.2); }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-    /* ── Main ──────────────────────────────────────────────────────────────── */
-    main {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 48px 24px 80px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
+    /* STATS MINI */
+    .stat-mini { text-align: center; }
+    .stat-mini-num { font-size: 28px; font-weight: 900; letter-spacing: -1px; line-height: 1; }
+    .stat-mini-label { font-size: 12px; color: var(--text-3); margin-top: 4px; font-weight: 500; }
 
-    /* ── Welcome card ──────────────────────────────────────────────────────── */
-    .welcome-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 28px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
+    /* DOWNLOAD CARD */
+    .dl-card { background: #111; border-color: #111; color: #fff; }
+    .dl-card .card-label { color: rgba(255,255,255,.4); }
+    .dl-card .card-title { color: #fff; }
+    .dl-card .card-desc { color: rgba(255,255,255,.55); }
+    .card-label { font-size: 11px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; }
+    .card-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 8px; }
+    .card-desc { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
 
-    .welcome-left h2 {
-      font-size: 18px; font-weight: 700; margin-bottom: 4px;
-    }
-    .welcome-left p {
-      font-size: 13px; color: var(--muted);
-    }
-
-    .badge {
-      display: inline-block;
-      font-size: 12px; font-weight: 700;
-      padding: 4px 12px; border-radius: 999px;
-      text-transform: uppercase; letter-spacing: .05em;
-    }
-    .badge-free  { background: #1a1a1a; color: var(--muted);  border: 1px solid #333; }
-    .badge-beta  { background: #2d1f00; color: var(--amber); border: 1px solid #6b4800; }
-    .badge-pro   { background: #041a0c; color: var(--green); border: 1px solid #0f4a25; }
-
-    /* ── Download card ─────────────────────────────────────────────────────── */
-    .download-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 32px;
-    }
-
-    .download-card h3 {
-      font-size: 16px; font-weight: 700; margin-bottom: 8px;
-    }
-    .download-card p {
-      font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px;
-    }
-
-    .dl-row {
-      display: flex; align-items: center; gap: 16px;
-      background: #0d0d0d; border: 1px solid var(--border);
-      border-radius: 10px; padding: 16px 20px;
-      flex-wrap: wrap;
-    }
-
-    .dl-icon { font-size: 2rem; line-height: 1; flex-shrink: 0; }
-
-    .dl-info { flex: 1; }
-    .dl-info strong { font-size: 14px; display: block; margin-bottom: 3px; }
-    .dl-info span { font-size: 12px; color: var(--muted); }
-
-    .btn-dl {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 22px; border-radius: 999px; border: none;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      text-decoration: none; background: var(--blue); color: #fff;
-      transition: opacity .15s, transform .15s; white-space: nowrap;
-    }
-    .btn-dl:hover { opacity: .88; transform: scale(1.02); }
-
-    .note { font-size: 12px; color: #555; margin-top: 12px; }
-
-    /* ── Info card ─────────────────────────────────────────────────────────── */
-    .info-card {
-      background: #0a0a0a;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px 28px;
-    }
-    .info-card h4 { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .06em; }
-
-    .steps { display: flex; flex-direction: column; gap: 8px; }
-    .step-row { display: flex; align-items: baseline; gap: 12px; font-size: 13px; color: #bbb; }
-    .step-num {
-      width: 22px; height: 22px; border-radius: 50%;
-      background: #1a1a1a; border: 1px solid var(--border);
+    /* STEPS LIST */
+    .steps-list { display: flex; flex-direction: column; gap: 12px; }
+    .step-item { display: flex; align-items: flex-start; gap: 12px; }
+    .step-bubble {
+      width: 28px; height: 28px; border-radius: var(--radius-pill);
       display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; color: var(--muted);
-      flex-shrink: 0;
+      font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
     }
+    .step-bubble.done { background: var(--green-light); color: var(--green); }
+    .step-bubble.active { background: var(--red-light); color: var(--red); }
+    .step-bubble.pending { background: rgba(0,0,0,0.05); color: var(--text-3); }
+    .step-text .step-title { font-size: 14px; font-weight: 600; }
+    .step-text .step-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; margin-top: 2px; }
 
-    /* ── Upgrade banner ────────────────────────────────────────────────────── */
+    /* UPGRADE BANNER */
     .upgrade-banner {
-      background: #1a0e00;
-      border: 1px solid #6b4800;
-      border-radius: 14px;
-      padding: 22px 28px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 16px; flex-wrap: wrap;
+      background: linear-gradient(135deg, #e5383b 0%, #c0292c 100%);
+      color: #fff; border-radius: var(--radius-lg); padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
     }
-    .upgrade-banner p { font-size: 13px; color: #d4a040; line-height: 1.6; }
-    .upgrade-banner strong { color: var(--amber); }
+    .upgrade-text .upgrade-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .upgrade-text .upgrade-sub { font-size: 13.5px; color: rgba(255,255,255,.7); }
+    .btn-upgrade { background: #fff; color: var(--red); font-weight: 700; font-size: 13.5px; }
+    .btn-upgrade:hover { background: rgba(255,255,255,.9); transform: translateY(-1px); }
 
-    /* ── Footer ────────────────────────────────────────────────────────────── */
-    footer {
-      text-align: center;
-      padding: 24px;
-      font-size: 12px;
-      color: #2a2a2a;
+    /* INFO LIST */
+    .info-list { display: flex; flex-direction: column; gap: 10px; }
+    .info-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13.5px; }
+    .info-key { color: var(--text-2); font-weight: 500; }
+    .info-val { font-weight: 600; text-align: right; }
+
+    /* LOADING */
+    .loading { display: flex; align-items: center; justify-content: center; height: 60vh; }
+    .loading-spinner {
+      width: 32px; height: 32px; border: 3px solid var(--border);
+      border-top-color: var(--red); border-radius: 50%;
+      animation: spin 0.7s linear infinite;
     }
-    footer a { color: #333; text-decoration: none; transition: color .15s; }
-    footer a:hover { color: #666; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hidden { display: none !important; }
 
-    /* ── Loading ───────────────────────────────────────────────────────────── */
-    #loading {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; color: var(--muted); font-size: 14px;
+    /* SECTION HEADER */
+    .section-header { margin-bottom: 16px; }
+    .section-header h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+    .section-header p { font-size: 13.5px; color: var(--text-2); margin-top: 3px; }
+
+    /* VERSION TAG */
+    .version-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,.12); border-radius: var(--radius-pill);
+      padding: 3px 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+    }
+
+    /* DIVIDER */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    @media (max-width: 480px) {
+      .nav-email { display: none; }
+      .page { padding: 20px 16px 48px; }
     }
   </style>
 </head>
 <body>
 
-<div id="loading">Chargement…</div>
-
-<div id="app" style="display:none">
-  <header>
-    <div class="logo">
-      <div class="dot"></div>
-      <span class="logo-name">Transkript</span>
-    </div>
-    <div class="header-right">
-      <span class="user-email" id="user-email"></span>
-      <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
-    </div>
-  </header>
-
-  <main>
-
-    <!-- Welcome -->
-    <div class="welcome-card">
-      <div class="welcome-left">
-        <h2 id="welcome-text">Bienvenue !</h2>
-        <p>Votre espace Transkript</p>
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1.5" y="4" width="2" height="8" rx="1"/>
+          <rect x="5" y="1.5" width="2" height="13" rx="1"/>
+          <rect x="8.5" y="5" width="2" height="6" rx="1"/>
+          <rect x="12" y="2.5" width="2" height="11" rx="1"/>
+        </svg>
       </div>
-      <span class="badge" id="plan-badge">FREE</span>
+      Transkript
+    </a>
+    <div class="nav-right">
+      <span class="nav-email" id="navEmail">—</span>
+      <button class="btn btn-ghost" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- LOADING -->
+<div class="loading" id="loadingState">
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- PAGE CONTENT -->
+<div class="page hidden" id="pageContent">
+
+  <!-- WELCOME ROW -->
+  <div class="welcome-row">
+    <div>
+      <div class="welcome-title" id="welcomeTitle">Bonjour 👋</div>
+      <div class="welcome-sub">Bienvenue dans votre espace Transkript</div>
+    </div>
+    <div id="planBadgeWrap"></div>
+  </div>
+
+  <!-- UPGRADE BANNER (hidden by default) -->
+  <div class="upgrade-banner hidden" id="upgradeBanner" style="margin-bottom:20px">
+    <div class="upgrade-text">
+      <div class="upgrade-title">Passez à la version Pro</div>
+      <div class="upgrade-sub">Débloquez les modèles haute précision et le support dédié.</div>
+    </div>
+    <button class="btn btn-upgrade">En savoir plus</button>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid grid-2" style="margin-bottom:16px">
+
+    <!-- DOWNLOAD -->
+    <div class="card dl-card">
+      <div class="card-label">Application Windows</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="card-title">Télécharger Transkript</div>
+        <div class="version-tag">v1.0.0</div>
+      </div>
+      <div class="card-desc">Installez l'application sur votre PC Windows 10/11. Le modèle Whisper (~488 Mo) sera téléchargé au premier lancement.</div>
+      <a href="https://github.com/mcwbcode/Transkript/releases/download/v1.0.0/Transkript-Setup.exe" class="btn btn-red" style="font-size:14px;padding:11px 20px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Télécharger (.exe)
+      </a>
     </div>
 
-    <!-- Upgrade banner (non-pro only) -->
-    <div class="upgrade-banner" id="upgrade-banner" style="display:none">
-      <p>
-        Votre plan actuel ne donne pas accès à l'application.<br>
-        Contactez-nous pour obtenir un accès <strong>Pro</strong>.
+    <!-- ACCOUNT INFO -->
+    <div class="card">
+      <div class="card-label">Informations du compte</div>
+      <div class="card-title" style="margin-bottom:20px">Mon compte</div>
+      <div class="info-list">
+        <div class="info-row">
+          <span class="info-key">Email</span>
+          <span class="info-val" id="infoEmail" style="font-size:13px;color:#555">—</span>
+        </div>
+        <div class="divider" style="margin:8px 0"></div>
+        <div class="info-row">
+          <span class="info-key">Plan actif</span>
+          <span class="info-val" id="infoPlan">—</span>
+        </div>
+        <div class="info-row" id="expiryRow" style="display:none">
+          <span class="info-key">Expire le</span>
+          <span class="info-val" id="infoExpiry">—</span>
+        </div>
+        <div class="divider" style="margin:8px 0"></div>
+        <div class="info-row">
+          <span class="info-key">Version app</span>
+          <span class="info-val" style="color:var(--text-3)">v1.0.0</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FIRST STEPS -->
+  <div class="section-header">
+    <h2>Premiers pas</h2>
+    <p>Suivez ces étapes pour bien démarrer avec Transkript.</p>
+  </div>
+
+  <div class="grid grid-3" style="margin-bottom:16px">
+
+    <div class="card card-sm">
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-bubble done">✓</div>
+          <div class="step-text">
+            <div class="step-title">Créer un compte</div>
+            <div class="step-desc">Votre compte est actif et votre licence est prête.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-sm">
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-bubble active">2</div>
+          <div class="step-text">
+            <div class="step-title">Installer l'application</div>
+            <div class="step-desc">Téléchargez et installez Transkript sur votre PC Windows.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-sm">
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-bubble pending">3</div>
+          <div class="step-text">
+            <div class="step-title">Charger le modèle IA</div>
+            <div class="step-desc">Au premier lancement, le modèle Whisper se télécharge automatiquement (~488 Mo).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- USAGE GUIDE -->
+  <div class="section-header">
+    <h2>Comment dicter</h2>
+    <p>Transkript fonctionne dans n'importe quelle application Windows.</p>
+  </div>
+
+  <div class="grid grid-2">
+
+    <div class="card card-sm">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:24px">⌨️</span>
+        <div class="card-title" style="font-size:16px;margin-bottom:0">Raccourci universel</div>
+      </div>
+      <p style="font-size:13.5px;color:var(--text-2);line-height:1.6">
+        Placez votre curseur là où vous voulez écrire, puis appuyez sur
+        <strong style="background:rgba(229,56,59,.1);color:var(--red);border-radius:4px;padding:2px 6px;font-size:12px">Ctrl + →</strong>
+        pour commencer à dicter. Relâchez pour valider.
       </p>
     </div>
 
-    <!-- Download -->
-    <div class="download-card">
-      <h3>Télécharger Transkript</h3>
-      <p>Installer l'application Windows pour commencer à dicter par la voix. Le modèle IA (~488 Mo) est téléchargé automatiquement au premier lancement.</p>
-
-      <div class="dl-row">
-        <div class="dl-icon">🪟</div>
-        <div class="dl-info">
-          <strong>Transkript pour Windows</strong>
-          <span>Windows 10 / 11 · 64-bit · Installer ~2 Mo</span>
-        </div>
-        <a class="btn-dl"
-           href="https://github.com/mcwbcode/Transkript/releases/download/v1.0.0/Transkript-Setup.exe">
-          ↓ Télécharger
-        </a>
+    <div class="card card-sm">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:24px">🔒</span>
+        <div class="card-title" style="font-size:16px;margin-bottom:0">100 % privé</div>
       </div>
-      <p class="note">Aucune donnée vocale n'est envoyée sur internet — tout est traité en local.</p>
+      <p style="font-size:13.5px;color:var(--text-2);line-height:1.6">
+        Vos dictées sont traitées localement sur votre machine par Whisper d'OpenAI. Aucune donnée n'est envoyée vers nos serveurs ou le cloud.
+      </p>
     </div>
 
-    <!-- Steps -->
-    <div class="info-card">
-      <h4>Premiers pas</h4>
-      <div class="steps">
-        <div class="step-row">
-          <div class="step-num">1</div>
-          <span>Lancez <code>Transkript-Setup.exe</code> et suivez l'assistant d'installation</span>
-        </div>
-        <div class="step-row">
-          <div class="step-num">2</div>
-          <span>Au premier démarrage, connectez-vous avec votre compte</span>
-        </div>
-        <div class="step-row">
-          <div class="step-num">3</div>
-          <span>Attendez le chargement du modèle (~2 min la première fois)</span>
-        </div>
-        <div class="step-row">
-          <div class="step-num">4</div>
-          <span>Maintenez <strong>Ctrl Droit</strong> pour dicter, relâchez pour coller</span>
-        </div>
-      </div>
-    </div>
+  </div>
 
-  </main>
-
-  <footer>
-    Transkript — Dictée vocale locale &nbsp;·&nbsp;
-    <a href="admin.html">Admin</a>
-  </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  const { createClient } = supabase;
-  const sb = createClient(
-    'https://gotfmgkrjqxzhrlagscj.supabase.co',
-    'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
-  );
+const { createClient } = window.supabase;
+const sb = createClient(
+  'https://gotfmgkrjqxzhrlagscj.supabase.co',
+  'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5'
+);
 
-  async function init() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session) { window.location.href = 'index.html'; return; }
+const PLAN_LABELS = { free: 'Gratuit', beta: 'Bêta', pro: 'Pro', expired: 'Expiré' };
+const PLAN_COLORS = { free: 'badge-free', beta: 'badge-beta', pro: 'badge-pro', expired: 'badge-expired' };
 
-    const email = session.user.email;
-    document.getElementById('user-email').textContent = email;
-    document.getElementById('welcome-text').textContent = `Bonjour, ${email.split('@')[0]} !`;
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('app').style.display     = 'block';
+async function logout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
 
-    // Récupère le plan
-    const plan = await getPlan(session.access_token, session.user.id);
-    applyPlan(plan);
-  }
+function formatDate(str) {
+  if (!str) return null;
+  return new Date(str).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
-  async function getPlan(token, userId) {
-    try {
-      const res = await fetch(
-        `https://gotfmgkrjqxzhrlagscj.supabase.co/rest/v1/licences?select=plan,valid_until&user_id=eq.${userId}&limit=1`,
-        { headers: { 'apikey': 'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5', 'Authorization': `Bearer ${token}` } }
-      );
-      const rows = await res.json();
-      if (!rows.length) return 'free';
-      const row = rows[0];
-      if (row.valid_until && new Date(row.valid_until) < new Date()) return 'expired';
-      return row.plan || 'free';
-    } catch { return 'free'; }
-  }
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'index.html'; return; }
 
-  function applyPlan(plan) {
-    const badge = document.getElementById('plan-badge');
-    const banner = document.getElementById('upgrade-banner');
+  const user = session.user;
+  const email = user.email;
+  const firstName = email.split('@')[0];
 
-    switch (plan) {
-      case 'pro':
-        badge.textContent = 'PRO';
-        badge.className   = 'badge badge-pro';
-        break;
-      case 'beta':
-        badge.textContent = 'BETA';
-        badge.className   = 'badge badge-beta';
-        banner.style.display = 'flex';
-        break;
-      default:
-        badge.textContent = 'FREE';
-        badge.className   = 'badge badge-free';
-        banner.style.display = 'flex';
+  // Update nav + welcome
+  document.getElementById('navEmail').textContent = email;
+  document.getElementById('infoEmail').textContent = email;
+  document.getElementById('welcomeTitle').textContent = `Bonjour, ${firstName} 👋`;
+
+  // Fetch plan
+  let plan = 'free';
+  let validUntil = null;
+  try {
+    const res = await fetch(
+      `https://gotfmgkrjqxzhrlagscj.supabase.co/rest/v1/licences?select=plan,valid_until&user_id=eq.${user.id}&limit=1`,
+      { headers: { apikey: 'sb_publishable_6ihonkWVKPbA-jeTcp5QBw_QU1fVcI5', Authorization: `Bearer ${session.access_token}` } }
+    );
+    const rows = await res.json();
+    if (rows?.length) {
+      plan = rows[0].plan || 'free';
+      validUntil = rows[0].valid_until;
+      // Check expiry
+      if (validUntil && new Date(validUntil) < new Date()) plan = 'expired';
     }
+  } catch (_) {}
+
+  // Plan badge
+  const badgeEl = document.createElement('div');
+  badgeEl.className = `plan-badge ${PLAN_COLORS[plan] || 'badge-free'}`;
+  badgeEl.innerHTML = `<span class="badge-dot"></span>${PLAN_LABELS[plan] || plan}`;
+  document.getElementById('planBadgeWrap').appendChild(badgeEl);
+
+  // Info
+  document.getElementById('infoPlan').textContent = PLAN_LABELS[plan] || plan;
+  if (validUntil) {
+    document.getElementById('expiryRow').style.display = 'flex';
+    document.getElementById('infoExpiry').textContent = formatDate(validUntil);
   }
 
-  async function doLogout() {
-    await sb.auth.signOut();
-    window.location.href = 'index.html';
+  // Upgrade banner for free/expired
+  if (plan === 'free' || plan === 'expired') {
+    document.getElementById('upgradeBanner').classList.remove('hidden');
   }
 
-  init();
+  // Show page
+  document.getElementById('loadingState').classList.add('hidden');
+  document.getElementById('pageContent').classList.remove('hidden');
+})();
 </script>
-
 </body>
 </html>
