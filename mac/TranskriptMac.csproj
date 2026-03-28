@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Transkript</RootNamespace>
+    <AssemblyName>Transkript</AssemblyName>
+    <Version>1.0.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- macOS bundle metadata -->
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+    <CFBundleName>Transkript</CFBundleName>
+    <CFBundleIdentifier>com.transkript.app</CFBundleIdentifier>
+    <CFBundleVersion>$(Version)</CFBundleVersion>
+    <CFBundleShortVersionString>$(Version)</CFBundleShortVersionString>
+    <NSMicrophoneUsageDescription>Transkript needs microphone access to transcribe your voice.</NSMicrophoneUsageDescription>
+    <NSHumanReadableCopyright>© 2025 Transkript</NSHumanReadableCopyright>
+    <!-- Create self-contained .app bundle -->
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>false</PublishSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Avalonia UI – cross-platform WPF-like framework -->
+    <PackageReference Include="Avalonia"                           Version="11.2.3" />
+    <PackageReference Include="Avalonia.Desktop"                  Version="11.2.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter"              Version="11.2.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent"            Version="11.2.3" />
+    <!-- Whisper speech-to-text (cross-platform) -->
+    <PackageReference Include="Whisper.net"                       Version="1.7.2"  />
+    <PackageReference Include="Whisper.net.Runtime"               Version="1.7.2"  />
+    <!-- Supabase HTTP client deps (auth) -->
+    <PackageReference Include="System.Text.Json"                  Version="8.0.5"  />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- App icon (macOS .icns) -->
+    <None Include="Assets/Transkript.icns">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- macOS entitlements for audio + accessibility -->
+    <None Include="Transkript.entitlements" />
+  </ItemGroup>
+
+</Project>
