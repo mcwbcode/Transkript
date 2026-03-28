@@ -1,0 +1,107 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Transkript.Views.LoginWindow"
+        Title="Transkript"
+        Width="380" Height="440"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        CanResize="False">
+
+  <Border Background="White" CornerRadius="16"
+          BorderBrush="#EBEBEB" BorderThickness="1"
+          BoxShadow="0 6 32 0 #17000000">
+
+    <Grid>
+
+      <!-- Close button -->
+      <Button x:Name="BtnClose"
+              HorizontalAlignment="Right" VerticalAlignment="Top"
+              Margin="0,14,14,0"
+              Width="28" Height="28"
+              Content="✕"
+              FontSize="12"
+              Background="Transparent"
+              BorderThickness="0"
+              Foreground="#C0C0C0"
+              Cursor="Hand"
+              Click="BtnClose_Click"/>
+
+      <StackPanel Margin="36,30,36,34">
+
+        <!-- Logo -->
+        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,28">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <Rectangle Width="3" Height="5"  Fill="#D8D8D8" RadiusX="1.5" RadiusY="1.5" Margin="2,0" VerticalAlignment="Center"/>
+            <Rectangle Width="3" Height="10" Fill="#B0B0B0" RadiusX="1.5" RadiusY="1.5" Margin="2,0" VerticalAlignment="Center"/>
+            <Rectangle Width="3" Height="17" Fill="#606060" RadiusX="1.5" RadiusY="1.5" Margin="2,0" VerticalAlignment="Center"/>
+            <Rectangle Width="3" Height="23" Fill="#0D0D0D" RadiusX="1.5" RadiusY="1.5" Margin="2,0" VerticalAlignment="Center"/>
+            <Rectangle Width="3" Height="17" Fill="#606060" RadiusX="1.5" RadiusY="1.5" Margin="2,0" VerticalAlignment="Center"/>
+            <Rectangle Width="3" Height="10" Fill="#B0B0B0" RadiusX="1.5" RadiusY="1.5" Margin="2,0" VerticalAlignment="Center"/>
+            <Rectangle Width="3" Height="5"  Fill="#D8D8D8" RadiusX="1.5" RadiusY="1.5" Margin="2,0" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBlock Text="Transkript" FontSize="21" FontWeight="Bold"
+                     Foreground="#0D0D0D" HorizontalAlignment="Center"/>
+          <TextBlock Text="Dictée vocale locale" FontSize="12" Foreground="#B0B0B0"
+                     HorizontalAlignment="Center" Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <!-- Email -->
+        <TextBlock Text="EMAIL" Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                   Margin="0,0,0,7"/>
+        <TextBox x:Name="TxtEmail"
+                 Height="46" FontSize="14"
+                 Background="#F7F7F7" Foreground="#0D0D0D"
+                 BorderBrush="#EBEBEB" BorderThickness="1"
+                 CornerRadius="10" Padding="14,0"
+                 VerticalContentAlignment="Center"
+                 Margin="0,0,0,18"
+                 KeyDown="Field_KeyDown"/>
+
+        <!-- Password -->
+        <TextBlock Text="MOT DE PASSE" Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                   Margin="0,0,0,7"/>
+        <Grid>
+          <TextBox x:Name="TxtPassword"
+                   Height="46" FontSize="14"
+                   Background="#F7F7F7" Foreground="#0D0D0D"
+                   BorderBrush="#EBEBEB" BorderThickness="1"
+                   CornerRadius="10" Padding="14,0,50,0"
+                   VerticalContentAlignment="Center"
+                   PasswordChar="•"
+                   KeyDown="Field_KeyDown"/>
+          <Button x:Name="BtnEye"
+                  HorizontalAlignment="Right"
+                  Width="44" Height="46"
+                  FontSize="14"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  Foreground="#C0C0C0"
+                  Content="👁"
+                  Cursor="Hand"
+                  Click="BtnEye_Click"/>
+        </Grid>
+
+        <!-- Error -->
+        <TextBlock x:Name="TxtError"
+                   Foreground="#E5383B" FontSize="12"
+                   TextWrapping="Wrap"
+                   Margin="0,10,0,0"
+                   IsVisible="False"/>
+
+        <!-- Submit -->
+        <Button x:Name="BtnSubmit"
+                Height="46" FontSize="14" FontWeight="SemiBold"
+                Background="#0D0D0D" Foreground="White"
+                BorderThickness="0" CornerRadius="10"
+                Content="Se connecter"
+                Cursor="Hand"
+                Margin="0,20,0,0"
+                Click="BtnSubmit_Click"/>
+
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>

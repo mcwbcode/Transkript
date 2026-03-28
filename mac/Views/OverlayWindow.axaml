@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Transkript.Views.OverlayWindow"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        Focusable="False"
+        IsHitTestVisible="False"
+        WindowStartupLocation="Manual"
+        CanResize="False"
+        Width="220" Height="48">
+
+  <!-- Pure black pill — visible on any background -->
+  <Border x:Name="Pill"
+          Background="#F2000000"
+          CornerRadius="24"
+          Opacity="0">
+    <Border.Transitions>
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.14"/>
+      </Transitions>
+    </Border.Transitions>
+
+    <StackPanel Orientation="Horizontal"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Margin="16,0">
+
+      <!-- Recording dot -->
+      <Ellipse Width="7" Height="7" Fill="#FF3B30"
+               VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+      <!-- Waveform canvas: 20 bars -->
+      <Canvas x:Name="WaveCanvas"
+              Width="130" Height="30"
+              VerticalAlignment="Center"/>
+
+    </StackPanel>
+  </Border>
+</Window>
