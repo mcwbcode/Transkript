@@ -1,0 +1,269 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Transkript.Views.SettingsWindow"
+        Title="Paramètres — Transkript"
+        Width="480" Height="560"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False">
+
+  <Border Background="White" CornerRadius="16"
+          BorderBrush="#EBEBEB" BorderThickness="1"
+          BoxShadow="0 6 32 0 #17000000">
+
+    <Grid Margin="28,24,28,24">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="16"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="16"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- Header -->
+      <Grid Grid.Row="0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+            <Rectangle Width="2.5" Height="5"  Fill="#D8D8D8" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="9"  Fill="#A0A0A0" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="14" Fill="#0D0D0D" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="9"  Fill="#A0A0A0" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="5"  Fill="#D8D8D8" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBlock Text="Paramètres" Foreground="#0D0D0D" FontSize="15" FontWeight="Bold"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                Width="28" Height="28" Content="✕" FontSize="12"
+                Background="Transparent" BorderThickness="0"
+                Foreground="#C0C0C0" Cursor="Hand"
+                Click="BtnCancel_Click"/>
+      </Grid>
+
+      <!-- Tabs -->
+      <TabControl Grid.Row="2" Background="Transparent" BorderThickness="0">
+
+        <!-- ── TAB 1 : Général ── -->
+        <TabItem Header="Général">
+          <StackPanel Margin="0,18,0,0">
+
+            <TextBlock Text="TOUCHE DE DICTÉE"
+                       Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                       Margin="0,0,0,8"/>
+            <ComboBox x:Name="CmbHotkey"
+                      Height="46" FontSize="13"
+                      Background="#F7F7F7" Foreground="#0D0D0D"
+                      BorderBrush="#EBEBEB" BorderThickness="1"
+                      CornerRadius="10" Padding="14,0"
+                      HorizontalContentAlignment="Left"
+                      VerticalContentAlignment="Center"/>
+
+            <TextBlock Text="LANGUE DE TRANSCRIPTION"
+                       Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                       Margin="0,22,0,8"/>
+            <ComboBox x:Name="CmbLanguage"
+                      Height="46" FontSize="13"
+                      Background="#F7F7F7" Foreground="#0D0D0D"
+                      BorderBrush="#EBEBEB" BorderThickness="1"
+                      CornerRadius="10" Padding="14,0"
+                      HorizontalContentAlignment="Left"
+                      VerticalContentAlignment="Center">
+              <ComboBoxItem Tag="auto" Content="🌐  Détection automatique"/>
+              <ComboBoxItem Tag="fr"   Content="🇫🇷  Français"/>
+              <ComboBoxItem Tag="en"   Content="🇬🇧  English"/>
+              <ComboBoxItem Tag="es"   Content="🇪🇸  Español"/>
+              <ComboBoxItem Tag="de"   Content="🇩🇪  Deutsch"/>
+              <ComboBoxItem Tag="it"   Content="🇮🇹  Italiano"/>
+              <ComboBoxItem Tag="pt"   Content="🇵🇹  Português"/>
+              <ComboBoxItem Tag="nl"   Content="🇳🇱  Nederlands"/>
+            </ComboBox>
+
+          </StackPanel>
+        </TabItem>
+
+        <!-- ── TAB 2 : Texte ── -->
+        <TabItem Header="Texte">
+          <StackPanel Margin="0,18,0,0">
+
+            <TextBlock Text="NETTOYAGE AUTOMATIQUE"
+                       Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                       Margin="0,0,0,12"/>
+
+            <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12" Margin="0,0,0,8"
+                    BorderBrush="#EBEBEB" BorderThickness="1">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="Supprimer les mots de remplissage" Foreground="#0D0D0D" FontSize="13"/>
+                  <TextBlock Text="euh, hum, ben, voilà, donc…" Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0"/>
+                </StackPanel>
+                <CheckBox x:Name="ChkFillers" Grid.Column="1" VerticalAlignment="Center" IsChecked="True"/>
+              </Grid>
+            </Border>
+
+            <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12" Margin="0,0,0,8"
+                    BorderBrush="#EBEBEB" BorderThickness="1">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="Supprimer les répétitions" Foreground="#0D0D0D" FontSize="13"/>
+                  <TextBlock Text="«je je veux» → «je veux»" Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0"/>
+                </StackPanel>
+                <CheckBox x:Name="ChkDuplicates" Grid.Column="1" VerticalAlignment="Center" IsChecked="True"/>
+              </Grid>
+            </Border>
+
+            <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12" Margin="0,0,0,8"
+                    BorderBrush="#EBEBEB" BorderThickness="1">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="Majuscule automatique" Foreground="#0D0D0D" FontSize="13"/>
+                  <TextBlock Text="Capitalise la première lettre" Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0"/>
+                </StackPanel>
+                <CheckBox x:Name="ChkCapitalize" Grid.Column="1" VerticalAlignment="Center" IsChecked="True"/>
+              </Grid>
+            </Border>
+
+            <Border Background="#F7F7F7" CornerRadius="10" Padding="16,12"
+                    BorderBrush="#EBEBEB" BorderThickness="1">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="Sauvegarder l'historique" Foreground="#0D0D0D" FontSize="13"/>
+                  <TextBlock Text="Enregistre chaque dictée localement" Foreground="#B0B0B0" FontSize="11" Margin="0,2,0,0"/>
+                </StackPanel>
+                <CheckBox x:Name="ChkHistory" Grid.Column="1" VerticalAlignment="Center" IsChecked="True"/>
+              </Grid>
+            </Border>
+
+          </StackPanel>
+        </TabItem>
+
+        <!-- ── TAB 3 : Compte ── -->
+        <TabItem Header="Compte">
+          <StackPanel Margin="0,18,0,0">
+
+            <Border Background="#F7F7F7" CornerRadius="10" Padding="16,14"
+                    BorderBrush="#EBEBEB" BorderThickness="1" Margin="0,0,0,12">
+              <StackPanel>
+                <TextBlock Text="COMPTE CONNECTÉ"
+                           Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
+                           Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                  <TextBlock Text="Email" Foreground="#9B9B9B" FontSize="12"
+                             Width="60" VerticalAlignment="Center"/>
+                  <TextBlock x:Name="TxtAccountEmail" Text="—"
+                             Foreground="#0D0D0D" FontSize="13" FontWeight="SemiBold"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="Plan" Foreground="#9B9B9B" FontSize="12"
+                             Width="60" VerticalAlignment="Center"/>
+                  <Border x:Name="AccountPlanBadge" CornerRadius="999" Padding="10,3">
+                    <TextBlock x:Name="TxtAccountPlan" FontSize="10" FontWeight="Bold"/>
+                  </Border>
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <Button Content="Gérer mon compte  →"
+                    Height="44" FontSize="13" FontWeight="SemiBold"
+                    Background="#0D0D0D" Foreground="White"
+                    BorderThickness="0" CornerRadius="10"
+                    Cursor="Hand" Margin="0,0,0,8"
+                    Click="BtnManageAccount_Click"/>
+
+            <Button Content="Gérer mon abonnement  →"
+                    Height="44" FontSize="13"
+                    Background="Transparent" Foreground="#0D0D0D"
+                    BorderBrush="#EBEBEB" BorderThickness="1"
+                    CornerRadius="10" Cursor="Hand"
+                    Click="BtnManageBilling_Click"/>
+
+          </StackPanel>
+        </TabItem>
+
+        <!-- ── TAB 4 : Dictionnaire ── -->
+        <TabItem Header="Dictionnaire">
+          <Grid Margin="0,18,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="10"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="10"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Text="Remplacez automatiquement des mots ou expressions après la transcription."
+                       Foreground="#9B9B9B" FontSize="12" TextWrapping="Wrap"/>
+
+            <Border Grid.Row="2" Background="#F7F7F7" CornerRadius="10"
+                    BorderBrush="#EBEBEB" BorderThickness="1">
+              <ScrollViewer>
+                <StackPanel x:Name="DictPanel" Margin="8"/>
+              </ScrollViewer>
+            </Border>
+
+            <Grid Grid.Row="4">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextBox x:Name="TxtDictFrom" Grid.Column="0"
+                       Height="38" Background="#F7F7F7" Foreground="#0D0D0D"
+                       BorderBrush="#EBEBEB" BorderThickness="1"
+                       CornerRadius="8" Padding="10,0" FontSize="12"
+                       VerticalContentAlignment="Center"/>
+              <TextBox x:Name="TxtDictTo" Grid.Column="2"
+                       Height="38" Background="#F7F7F7" Foreground="#0D0D0D"
+                       BorderBrush="#EBEBEB" BorderThickness="1"
+                       CornerRadius="8" Padding="10,0" FontSize="12"
+                       VerticalContentAlignment="Center"/>
+              <Button Grid.Column="4" Content="+"
+                      Width="38" Height="38" FontSize="18" FontWeight="Bold"
+                      Background="#0D0D0D" Foreground="White"
+                      BorderThickness="0" CornerRadius="8"
+                      Cursor="Hand" Click="BtnAddDict_Click"/>
+            </Grid>
+          </Grid>
+        </TabItem>
+
+      </TabControl>
+
+      <!-- Bottom buttons -->
+      <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button x:Name="BtnCancel" Content="Annuler"
+                Width="90" Height="36" Margin="0,0,10,0"
+                FontSize="13" Background="Transparent" Foreground="#6B6B6B"
+                BorderBrush="#EBEBEB" BorderThickness="1"
+                CornerRadius="10" Cursor="Hand"
+                Click="BtnCancel_Click"/>
+        <Button x:Name="BtnSave" Content="Enregistrer"
+                Width="115" Height="36"
+                FontSize="13" FontWeight="SemiBold"
+                Background="#0D0D0D" Foreground="White"
+                BorderThickness="0" CornerRadius="10"
+                Cursor="Hand" Click="BtnSave_Click"/>
+      </StackPanel>
+
+    </Grid>
+  </Border>
+</Window>

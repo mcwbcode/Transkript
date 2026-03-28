@@ -1,0 +1,95 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Transkript.Views.HomeWindow"
+        Title="Transkript"
+        Width="380" Height="300"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        CanResize="False">
+
+  <Border Background="White" CornerRadius="16"
+          BorderBrush="#EBEBEB" BorderThickness="1"
+          BoxShadow="0 6 32 0 #17000000">
+    <Grid>
+
+      <!-- Close button -->
+      <Button x:Name="BtnClose"
+              HorizontalAlignment="Right" VerticalAlignment="Top"
+              Margin="0,14,14,0"
+              Width="28" Height="28"
+              Content="✕" FontSize="12"
+              Background="Transparent" BorderThickness="0"
+              Foreground="#C0C0C0" Cursor="Hand"
+              Click="BtnClose_Click"/>
+
+      <StackPanel Margin="32,24,32,28">
+
+        <!-- Logo row -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,22">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+            <Rectangle Width="2.5" Height="5"  Fill="#D8D8D8" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="9"  Fill="#A0A0A0" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="14" Fill="#0D0D0D" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="9"  Fill="#A0A0A0" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+            <Rectangle Width="2.5" Height="5"  Fill="#D8D8D8" RadiusX="1" RadiusY="1" Margin="1.5,0" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBlock Text="Transkript" FontSize="15" FontWeight="Bold"
+                     Foreground="#0D0D0D" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Welcome -->
+        <TextBlock Text="Bienvenue," FontSize="12" Foreground="#B0B0B0" Margin="0,0,0,2"/>
+        <TextBlock x:Name="TxtEmail" Text="" FontSize="15" FontWeight="SemiBold"
+                   Foreground="#0D0D0D" Margin="0,0,0,18"
+                   TextTrimming="CharacterEllipsis"/>
+
+        <!-- Plan badge + status -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+          <Border x:Name="PlanBadge" CornerRadius="999" Padding="10,4" Margin="0,0,10,0">
+            <TextBlock x:Name="TxtPlan" FontSize="10" FontWeight="Bold"/>
+          </Border>
+          <TextBlock x:Name="TxtStatusMsg" FontSize="13" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Upgrade notice -->
+        <Border x:Name="PnlUpgrade"
+                Background="#FFF8F8" BorderBrush="#FDDEDE" BorderThickness="1"
+                CornerRadius="10" Padding="14,11" Margin="0,0,0,16"
+                IsVisible="False">
+          <StackPanel>
+            <TextBlock Text="Abonnement Pro requis" FontSize="13" FontWeight="Bold"
+                       Foreground="#D03030" Margin="0,0,0,3"/>
+            <TextBlock FontSize="12" Foreground="#B06060" TextWrapping="Wrap">
+              Seul le plan Pro permet d'utiliser l'application. Rendez-vous sur le site pour souscrire.
+            </TextBlock>
+          </StackPanel>
+        </Border>
+
+        <!-- Launch button -->
+        <Button x:Name="BtnLaunch"
+                Height="44" FontSize="14" FontWeight="SemiBold"
+                Background="#0D0D0D" Foreground="White"
+                BorderThickness="0" CornerRadius="10"
+                Content="Lancer Transkript  →"
+                Cursor="Hand"
+                Margin="0,0,0,10"
+                IsVisible="False"
+                Click="BtnLaunch_Click"/>
+
+        <!-- Logout button -->
+        <Button x:Name="BtnLogout"
+                Height="38" FontSize="13"
+                Background="Transparent" Foreground="#6B6B6B"
+                BorderBrush="#EBEBEB" BorderThickness="1"
+                CornerRadius="10"
+                Content="Se déconnecter"
+                Cursor="Hand"
+                Click="BtnLogout_Click"/>
+
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>
