@@ -35,44 +35,12 @@
     <PackageReference Include="System.Text.Json"                  Version="8.0.5"  />
   </ItemGroup>
 
-  <!-- ── Application entry point + orchestration ── -->
+  <!-- ── AXAML resources (SDK auto-includes all .cs files) ── -->
   <ItemGroup>
-    <Compile Include="Program.cs"/>
-    <Compile Include="App.axaml.cs"/>
     <AvaloniaResource Include="App.axaml"/>
-  </ItemGroup>
-
-  <!-- ── Services ── -->
-  <ItemGroup>
-    <Compile Include="Logger.cs"/>
-    <Compile Include="AuthService.cs"/>
-    <Compile Include="AppSettings.cs"/>
-    <Compile Include="TextProcessor.cs"/>
-    <Compile Include="HistoryManager.cs"/>
-    <Compile Include="Transcriber.cs"/>
-    <Compile Include="UpdateChecker.cs"/>
-  </ItemGroup>
-
-  <!-- ── macOS Platform layer ── -->
-  <ItemGroup>
-    <Compile Include="Platform/AudioRecorderMac.cs"/>
-    <Compile Include="Platform/GlobalHotkeyMac.cs"/>
-    <Compile Include="Platform/MenuBarMac.cs"/>
-    <Compile Include="Platform/PasteHelperMac.cs"/>
-  </ItemGroup>
-
-  <!-- ── Views (Avalonia AXAML windows) ── -->
-  <ItemGroup>
-    <Compile Include="Views/LoginWindow.axaml.cs"/>
     <AvaloniaResource Include="Views/LoginWindow.axaml"/>
-
-    <Compile Include="Views/HomeWindow.axaml.cs"/>
     <AvaloniaResource Include="Views/HomeWindow.axaml"/>
-
-    <Compile Include="Views/SettingsWindow.axaml.cs"/>
     <AvaloniaResource Include="Views/SettingsWindow.axaml"/>
-
-    <Compile Include="Views/OverlayWindow.axaml.cs"/>
     <AvaloniaResource Include="Views/OverlayWindow.axaml"/>
   </ItemGroup>
 
