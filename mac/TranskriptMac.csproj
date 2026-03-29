@@ -35,14 +35,7 @@
     <PackageReference Include="System.Text.Json"                  Version="8.0.5"  />
   </ItemGroup>
 
-  <!-- ── AXAML resources (SDK auto-includes all .cs files) ── -->
-  <ItemGroup>
-    <AvaloniaResource Include="App.axaml"/>
-    <AvaloniaResource Include="Views/LoginWindow.axaml"/>
-    <AvaloniaResource Include="Views/HomeWindow.axaml"/>
-    <AvaloniaResource Include="Views/SettingsWindow.axaml"/>
-    <AvaloniaResource Include="Views/OverlayWindow.axaml"/>
-  </ItemGroup>
+  <!-- SDK + Avalonia auto-include all .cs and .axaml files -->
 
   <!-- ── Assets ── -->
   <ItemGroup>
