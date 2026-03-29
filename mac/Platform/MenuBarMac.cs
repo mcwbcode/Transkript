@@ -69,14 +69,14 @@ public sealed class MenuBarMac : IDisposable
             new Avalonia.Controls.TrayIcons { _trayIcon });
     }
 
-    private static Avalonia.Media.Imaging.Bitmap? LoadIcon()
+    private static Avalonia.Controls.WindowIcon? LoadIcon()
     {
         try
         {
             string iconPath = System.IO.Path.Combine(
                 AppContext.BaseDirectory, "Assets", "Transkript.icns");
             if (System.IO.File.Exists(iconPath))
-                return new Avalonia.Media.Imaging.Bitmap(iconPath);
+                return new Avalonia.Controls.WindowIcon(iconPath);
         }
         catch { }
         return null;
@@ -104,7 +104,7 @@ public sealed class MenuBarMac : IDisposable
                 _updateItem.Click += (_, _) => UpdateRequested?.Invoke();
                 // Insert before "Quitter" (last item after separator)
                 var menu = _trayIcon.Menu!;
-                menu.Insert(menu.Count - 2, _updateItem);
+                menu.Items.Insert(menu.Items.Count - 2, _updateItem);
             }
             else
             {

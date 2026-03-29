@@ -127,7 +127,7 @@ public partial class OverlayWindow : Window
         if (screen == null) return;
 
         var wa      = screen.WorkingArea;
-        double scale = screen.PixelDensity;
+        double scale = screen.Scaling;
         int winPxW  = (int)(Width  * scale);
         int winPxH  = (int)(Height * scale);
 
