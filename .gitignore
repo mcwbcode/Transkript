@@ -5,12 +5,25 @@ build_log.txt
 *.user
 .vs/
 
+# macOS
+.DS_Store
+.AppleDouble
+
+# Build artefacts
+dist/
+
 # Son bundlé (volumineux — à garder en local uniquement)
 *.wav
 *.mp3
 
-# Icône générée localement
+# Icône Windows générée localement
 app.ico
+
+# Modèle Whisper (trop volumineux, téléchargé automatiquement au 1er lancement)
+*.bin
+
+# Auth locale (ne jamais committer)
+auth.json
 
 # Logs
 *.log

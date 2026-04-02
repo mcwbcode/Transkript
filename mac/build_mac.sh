@@ -62,7 +62,7 @@ if [ "$ARCH" = "universal" ]; then
     # Copy all files from arm64 first
     cp -R "$ARM_OUT/." "$PUBLISH_DIR/"
     # Lipo merge the main executable and native dylibs
-    for f in "$ARM_OUT"/Transkript "$ARM_OUT"/*.dylib 2>/dev/null; do
+    for f in "$ARM_OUT"/Transkript "$ARM_OUT"/*.dylib; do
         [ -f "$f" ] || continue
         fname=$(basename "$f")
         arm64_f="$ARM_OUT/$fname"
@@ -135,6 +135,35 @@ cat > "$CONTENTS/Info.plist" <<PLIST
 </plist>
 PLIST
 
+# ── Helper: generate default icon ────────────────────────────────────────────
+generate_default_icon() {
+    local dest_dir="$1"
+    if ! command -v sips &>/dev/null; then return; fi
+
+    local iconset="$TMPDIR/Transkript.iconset"
+    mkdir -p "$iconset"
+
+    # Create a simple PNG with ImageMagick if available, otherwise skip
+    if command -v convert &>/dev/null; then
+        convert -size 1024x1024 xc:'#0D0D0D' \
+            -fill white -font Helvetica-Bold -pointsize 400 \
+            -gravity center -annotate 0 "T" \
+            "$iconset/icon_1024x1024.png" 2>/dev/null
+
+        for size in 16 32 64 128 256 512 1024; do
+            sips -z $size $size "$iconset/icon_1024x1024.png" \
+                --out "$iconset/icon_${size}x${size}.png" &>/dev/null
+            if [ $size -le 512 ]; then
+                local s2=$((size*2))
+                sips -z $s2 $s2 "$iconset/icon_1024x1024.png" \
+                    --out "$iconset/icon_${size}x${size}@2x.png" &>/dev/null
+            fi
+        done
+
+        iconutil -c icns "$iconset" -o "$dest_dir/Transkript.icns" 2>/dev/null || true
+    fi
+}
+
 # ── Icon ─────────────────────────────────────────────────────────────────────
 ICON_SRC="$SCRIPT_DIR/Assets/Transkript.icns"
 if [ -f "$ICON_SRC" ]; then
@@ -177,32 +206,3 @@ echo ""
 echo "Pour tester : open \"$BUNDLE\""
 echo "Pour créer un DMG  : ./make_installer_mac.sh"
 echo ""
-
-# ── Helper: generate default icon ────────────────────────────────────────────
-generate_default_icon() {
-    local dest_dir="$1"
-    if ! command -v sips &>/dev/null; then return; fi
-
-    local iconset="$TMPDIR/Transkript.iconset"
-    mkdir -p "$iconset"
-
-    # Create a simple PNG with ImageMagick if available, otherwise skip
-    if command -v convert &>/dev/null; then
-        convert -size 1024x1024 xc:'#0D0D0D' \
-            -fill white -font Helvetica-Bold -pointsize 400 \
-            -gravity center -annotate 0 "T" \
-            "$iconset/icon_1024x1024.png" 2>/dev/null
-
-        for size in 16 32 64 128 256 512 1024; do
-            sips -z $size $size "$iconset/icon_1024x1024.png" \
-                --out "$iconset/icon_${size}x${size}.png" &>/dev/null
-            if [ $size -le 512 ]; then
-                local s2=$((size*2))
-                sips -z $s2 $s2 "$iconset/icon_1024x1024.png" \
-                    --out "$iconset/icon_${size}x${size}@2x.png" &>/dev/null
-            fi
-        done
-
-        iconutil -c icns "$iconset" -o "$dest_dir/Transkript.icns" 2>/dev/null || true
-    fi
-}
