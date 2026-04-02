@@ -1,0 +1,80 @@
+name: Build & Release Mac DMG
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'mac/**'
+      - '.github/workflows/build-mac.yml'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    name: Build macOS DMG
+    runs-on: macos-14   # Apple Silicon (M1)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore packages
+        working-directory: mac
+        run: dotnet restore TranskriptMac.csproj
+
+      - name: Build .app bundle (arm64)
+        working-directory: mac
+        run: |
+          chmod +x build_mac.sh
+          ./build_mac.sh arm64
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Create DMG (arm64)
+        working-directory: mac
+        run: |
+          chmod +x make_installer_mac.sh
+          ./make_installer_mac.sh arm64
+
+      - name: List dist
+        run: ls -lh dist/
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Transkript-mac-arm64
+          path: dist/*.dmg
+          retention-days: 30
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: Transkript v1.0.0
+          body: |
+            ## Transkript v1.0.0
+
+            Application de transcription vocale locale propulsée par Whisper d'OpenAI.
+
+            ### Téléchargements
+
+            | Plateforme | Lien |
+            |---|---|
+            | **Windows 10/11** | [Transkript-Setup.exe](https://github.com/mcwbcode/Transkript/releases/download/v1/Transkript-Setup.exe) |
+            | **macOS Apple Silicon (M1/M2/M3)** | Voir le DMG ci-dessous |
+
+            ### Installation macOS
+            1. Téléchargez **Transkript-1.0.0-arm64.dmg**
+            2. Ouvrez le fichier .dmg
+            3. Glissez **Transkript.app** vers le dossier **Applications**
+            4. Premier lancement : clic droit → **Ouvrir** (pour contourner Gatekeeper)
+            5. Autorisez l'accès **Microphone** dans Réglages Système → Confidentialité
+
+            > Le modèle Whisper (~488 Mo) se télécharge automatiquement au premier lancement.
+          files: dist/*.dmg
+          token: ${{ secrets.GITHUB_TOKEN }}
