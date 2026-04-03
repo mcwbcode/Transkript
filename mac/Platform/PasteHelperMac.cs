@@ -49,12 +49,58 @@ public static class PasteHelperMac
     [DllImport(CoreGraphicsLib)]
     private static extern void CFRelease(IntPtr cf);
 
+    [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
+    private static extern void MsgSendNUInt(IntPtr receiver, IntPtr selector, nuint arg1);
+
     // macOS virtual key for 'V'
     private const ushort kVK_ANSI_V = 0x09;
     // kCGEventFlagMaskCommand
     private const ulong kCGEventFlagMaskCommand = 0x00100000;
     // kCGHIDEventTap = 0
     private const uint kCGHIDEventTap = 0;
+
+    // NSApplicationActivateIgnoringOtherApps = 1 << 1
+    private const nuint NSApplicationActivateIgnoringOtherApps = 2;
+
+    private static IntPtr _savedFrontApp = IntPtr.Zero;
+
+    /// <summary>
+    /// Saves the currently frontmost app. Call this before showing the overlay
+    /// so we know where to send the paste after transcription.
+    /// </summary>
+    public static void SaveFrontmostApp()
+    {
+        try
+        {
+            IntPtr wsClass = GetClass("NSWorkspace");
+            IntPtr ws      = MsgSend(wsClass, RegisterSelector("sharedWorkspace"));
+            _savedFrontApp = MsgSend(ws, RegisterSelector("frontmostApplication"));
+            Logger.Write("SaveFrontmostApp : OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.Write($"SaveFrontmostApp error: {ex.Message}");
+            _savedFrontApp = IntPtr.Zero;
+        }
+    }
+
+    /// <summary>
+    /// Re-activates the saved app so Cmd+V reaches the right window.
+    /// </summary>
+    public static void ActivateSavedApp()
+    {
+        if (_savedFrontApp == IntPtr.Zero) return;
+        try
+        {
+            MsgSendNUInt(_savedFrontApp, RegisterSelector("activateWithOptions:"),
+                         NSApplicationActivateIgnoringOtherApps);
+            Logger.Write("ActivateSavedApp : OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.Write($"ActivateSavedApp error: {ex.Message}");
+        }
+    }
 
     public static void Paste(string text)
     {
