@@ -174,6 +174,40 @@ else
     generate_default_icon "$RESOURCES"
 fi
 
+# ── Whisper model ────────────────────────────────────────────────────────────
+MODEL_FILE="ggml-small.bin"
+MODEL_CACHE="$SCRIPT_DIR/Assets/models/$MODEL_FILE"
+MODEL_DEST="$MACOS/models/$MODEL_FILE"
+mkdir -p "$(dirname "$MODEL_DEST")"
+
+# Check the user-level cache first (fast path — already downloaded)
+USER_MODEL="$HOME/Library/Application Support/Transkript/models/$MODEL_FILE"
+
+if [ -f "$MODEL_DEST" ]; then
+    echo "   ✓ Modèle déjà dans le bundle"
+elif [ -f "$MODEL_CACHE" ]; then
+    echo "► Modèle trouvé dans le cache Assets — copie…"
+    cp "$MODEL_CACHE" "$MODEL_DEST"
+    echo "   ✓ Modèle copié ($(du -sh "$MODEL_DEST" | cut -f1))"
+elif [ -f "$USER_MODEL" ]; then
+    echo "► Modèle trouvé dans le cache utilisateur — copie…"
+    cp "$USER_MODEL" "$MODEL_DEST"
+    mkdir -p "$(dirname "$MODEL_CACHE")"
+    cp "$USER_MODEL" "$MODEL_CACHE"
+    echo "   ✓ Modèle copié ($(du -sh "$MODEL_DEST" | cut -f1))"
+else
+    echo "► Téléchargement du modèle Whisper Small (~488 Mo)…"
+    MODEL_URL="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin"
+    mkdir -p "$(dirname "$MODEL_CACHE")"
+    if curl -L --progress-bar -o "$MODEL_CACHE" "$MODEL_URL"; then
+        cp "$MODEL_CACHE" "$MODEL_DEST"
+        echo "   ✓ Modèle téléchargé et copié ($(du -sh "$MODEL_DEST" | cut -f1))"
+    else
+        echo "   ⚠ Téléchargement échoué — le modèle sera téléchargé au premier lancement"
+        rm -f "$MODEL_CACHE"
+    fi
+fi
+
 # ── PkgInfo ───────────────────────────────────────────────────────────────────
 printf 'APPL????' > "$CONTENTS/PkgInfo"
 

@@ -43,6 +43,10 @@
     <None Include="Assets/Transkript.icns" Condition="Exists('Assets/Transkript.icns')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- Menu bar template icon (transparent PNG) -->
+    <None Include="Assets/menubar_icon.png" Condition="Exists('Assets/menubar_icon.png')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <!-- macOS entitlements for audio + accessibility permissions -->
     <None Include="Transkript.entitlements" />
   </ItemGroup>

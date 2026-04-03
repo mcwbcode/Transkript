@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -11,18 +12,44 @@ namespace Transkript.Views;
 
 public partial class SettingsWindow : Window
 {
-    // ── Hotkey options (macOS Carbon key codes) ───────────────────────────────
-    private static readonly (string Name, uint Code, uint Mods)[] HotkeyOptions =
+    // ── Carbon VK lookup (Avalonia Key → macOS virtual key code) ─────────────
+    private static readonly Dictionary<Key, uint> KeyToVK = new()
+    {
+        // Letters
+        { Key.A, 0 },  { Key.S, 1 },  { Key.D, 2 },  { Key.F, 3 },
+        { Key.H, 4 },  { Key.G, 5 },  { Key.Z, 6 },  { Key.X, 7 },
+        { Key.C, 8 },  { Key.V, 9 },  { Key.B, 11 }, { Key.Q, 12 },
+        { Key.W, 13 }, { Key.E, 14 }, { Key.R, 15 }, { Key.Y, 16 },
+        { Key.T, 17 }, { Key.O, 31 }, { Key.U, 32 }, { Key.I, 34 },
+        { Key.P, 35 }, { Key.L, 37 }, { Key.J, 38 }, { Key.K, 40 },
+        { Key.N, 45 }, { Key.M, 46 },
+        // Numbers (main row)
+        { Key.D1, 18 }, { Key.D2, 19 }, { Key.D3, 20 }, { Key.D4, 21 },
+        { Key.D5, 23 }, { Key.D6, 22 }, { Key.D7, 26 }, { Key.D8, 28 },
+        { Key.D9, 25 }, { Key.D0, 29 },
+        // Function keys
+        { Key.F1,  122 }, { Key.F2,  120 }, { Key.F3,  99  }, { Key.F4,  118 },
+        { Key.F5,  96  }, { Key.F6,  97  }, { Key.F7,  98  }, { Key.F8,  100 },
+        { Key.F9,  101 }, { Key.F10, 109 }, { Key.F11, 103 }, { Key.F12, 111 },
+        { Key.F13, 105 }, { Key.F14, 107 }, { Key.F15, 113 }, { Key.F16, 106 },
+        { Key.F17, 64  }, { Key.F18, 79  }, { Key.F19, 80  },
+        // Special keys
+        { Key.Tab,    48 }, { Key.Space,  49 }, { Key.Return, 36 },
+        { Key.Escape, 53 }, { Key.Back,   51 }, { Key.Delete, 117 },
+        // Navigation
+        { Key.Left, 123 }, { Key.Right, 124 }, { Key.Down, 125 }, { Key.Up, 126 },
+        { Key.Home, 115 }, { Key.End,  119  },
+        { Key.PageUp, 116 }, { Key.PageDown, 121 },
+    };
+
+    // Modifier-only keys — skip these during capture
+    private static readonly HashSet<Key> ModifierKeys =
     [
-        ("F13",         GlobalHotkeyMac.VK_F13,       0),
-        ("F14",         GlobalHotkeyMac.VK_F14,       0),
-        ("F15",         GlobalHotkeyMac.VK_F15,       0),
-        ("F16",         GlobalHotkeyMac.VK_F16,       0),
-        ("F17",         GlobalHotkeyMac.VK_F17,       0),
-        ("F18",         GlobalHotkeyMac.VK_F18,       0),
-        ("F19",         GlobalHotkeyMac.VK_F19,       0),
-        ("⌘ Droit",     GlobalHotkeyMac.VK_RIGHT_CMD, 0),
-        ("CapsLock",    GlobalHotkeyMac.VK_CAPS_LOCK, 0),
+        Key.LeftCtrl, Key.RightCtrl,
+        Key.LeftAlt,  Key.RightAlt,
+        Key.LeftShift, Key.RightShift,
+        Key.LWin, Key.RWin,
+        Key.System, Key.None,
     ];
 
     // ── Exposed results ───────────────────────────────────────────────────────
@@ -38,6 +65,12 @@ public partial class SettingsWindow : Window
 
     private readonly List<DictionaryEntry> _dictEntries = new();
 
+    // ── Key recorder state ────────────────────────────────────────────────────
+    private bool   _isRecording  = false;
+    private uint   _capturedCode;
+    private uint   _capturedMods;
+    private string _capturedName = "";
+
     private const string AccountUrl = "https://transkript.app/account";
     private const string BillingUrl = "https://transkript.app/billing";
 
@@ -46,10 +79,11 @@ public partial class SettingsWindow : Window
         InitializeComponent();
         PointerPressed += (_, e) => BeginMoveDrag(e);
 
-        // Hotkey ComboBox
-        foreach (var (name, _, _) in HotkeyOptions)
-            CmbHotkey.Items.Add(name);
-        SelectHotkey(settings.HotkeyCode);
+        // Init recorder state from current settings
+        _capturedCode = settings.HotkeyCode;
+        _capturedMods = settings.HotkeyModifiers;
+        _capturedName = settings.HotkeyName;
+        UpdateHotkeyDisplay(idle: true);
 
         // Language ComboBox
         SelectLanguage(settings.Language);
@@ -67,7 +101,6 @@ public partial class SettingsWindow : Window
             AddDictRow(entry.From, entry.To);
         }
 
-        // Account
         LoadAccountInfo();
     }
 
@@ -106,27 +139,121 @@ public partial class SettingsWindow : Window
         }
     }
 
-    // ── Hotkey helpers ────────────────────────────────────────────────────────
+    // ── Key recorder ──────────────────────────────────────────────────────────
 
-    private void SelectHotkey(uint code)
+    private void HotkeyRecorder_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        for (int i = 0; i < HotkeyOptions.Length; i++)
-        {
-            if (HotkeyOptions[i].Code == code)
-            {
-                CmbHotkey.SelectedIndex = i;
-                return;
-            }
-        }
-        CmbHotkey.SelectedIndex = 0; // default F13
+        if (_isRecording) { StopRecording(cancelled: true); return; }
+        StartRecording();
     }
 
-    private (uint code, uint mods, string name) GetSelectedHotkey()
+    private void StartRecording()
     {
-        int idx = CmbHotkey.SelectedIndex;
-        if (idx < 0 || idx >= HotkeyOptions.Length) idx = 0;
-        var (name, code, mods) = HotkeyOptions[idx];
-        return (code, mods, name);
+        _isRecording = true;
+        UpdateHotkeyDisplay(idle: false);
+        // Tunnel phase = before focus/tab traversal handles the key
+        this.AddHandler(KeyDownEvent, OnKeyCapture, RoutingStrategies.Tunnel);
+    }
+
+    private void StopRecording(bool cancelled = false)
+    {
+        _isRecording = false;
+        this.RemoveHandler(KeyDownEvent, OnKeyCapture);
+        UpdateHotkeyDisplay(idle: true);
+        if (cancelled) Logger.Write("KeyRecorder: annulé");
+    }
+
+    private void OnKeyCapture(object? sender, KeyEventArgs e)
+    {
+        e.Handled = true; // prevent Tab from changing focus, etc.
+
+        // Ignore pure modifier presses
+        if (ModifierKeys.Contains(e.Key)) return;
+
+        // Escape = cancel without saving
+        if (e.Key == Key.Escape)
+        {
+            StopRecording(cancelled: true);
+            return;
+        }
+
+        if (!KeyToVK.TryGetValue(e.Key, out uint vk))
+        {
+            // Key not in our map — show a hint but stay in recording mode
+            TxtHotkeyKey.Text = $"{e.Key} (non supporté)";
+            return;
+        }
+
+        // Build Carbon modifier mask
+        uint mods = 0;
+        var km = e.KeyModifiers;
+        if ((km & KeyModifiers.Control) != 0) mods |= GlobalHotkeyMac.controlKey;
+        if ((km & KeyModifiers.Alt)     != 0) mods |= GlobalHotkeyMac.optionKey;
+        if ((km & KeyModifiers.Shift)   != 0) mods |= GlobalHotkeyMac.shiftKey;
+        if ((km & KeyModifiers.Meta)    != 0) mods |= GlobalHotkeyMac.cmdKey;
+
+        _capturedCode = vk;
+        _capturedMods = mods;
+        _capturedName = FormatKeyName(e.Key, km);
+
+        Logger.Write($"KeyRecorder: capturé {_capturedName} (vk={vk}, mods={mods})");
+        StopRecording();
+    }
+
+    private void UpdateHotkeyDisplay(bool idle)
+    {
+        if (idle)
+        {
+            HotkeyRecorderBorder.BorderBrush = new SolidColorBrush(Color.Parse("#EBEBEB"));
+            HotkeyRecorderBorder.Background  = new SolidColorBrush(Color.Parse("#F7F7F7"));
+            TxtHotkeyKey.Text      = _capturedName;
+            TxtHotkeyKey.Foreground = new SolidColorBrush(Color.Parse("#0D0D0D"));
+            TxtHotkeyHint.Text      = "Cliquer pour changer";
+            TxtHotkeyHint.Foreground = new SolidColorBrush(Color.Parse("#C0C0C0"));
+        }
+        else
+        {
+            HotkeyRecorderBorder.BorderBrush = new SolidColorBrush(Color.Parse("#0D0D0D"));
+            HotkeyRecorderBorder.Background  = new SolidColorBrush(Color.Parse("#F0F0F0"));
+            TxtHotkeyKey.Text      = "En attente…";
+            TxtHotkeyKey.Foreground = new SolidColorBrush(Color.Parse("#6B6B6B"));
+            TxtHotkeyHint.Text      = "Appuyez sur une touche  ·  Échap pour annuler";
+            TxtHotkeyHint.Foreground = new SolidColorBrush(Color.Parse("#B0B0B0"));
+        }
+    }
+
+    private static string FormatKeyName(Key key, KeyModifiers mods)
+    {
+        var parts = new List<string>();
+        if ((mods & KeyModifiers.Control) != 0) parts.Add("⌃");
+        if ((mods & KeyModifiers.Alt)     != 0) parts.Add("⌥");
+        if ((mods & KeyModifiers.Shift)   != 0) parts.Add("⇧");
+        if ((mods & KeyModifiers.Meta)    != 0) parts.Add("⌘");
+
+        string keyStr = key switch
+        {
+            Key.Space    => "Espace",
+            Key.Return   => "Entrée",
+            Key.Tab      => "Tab",
+            Key.Escape   => "Échap",
+            Key.Back     => "Suppr",
+            Key.Delete   => "Suppr →",
+            Key.Left     => "←",
+            Key.Right    => "→",
+            Key.Up       => "↑",
+            Key.Down     => "↓",
+            Key.Home     => "Début",
+            Key.End      => "Fin",
+            Key.PageUp   => "Page↑",
+            Key.PageDown => "Page↓",
+            >= Key.A and <= Key.Z => key.ToString(),
+            >= Key.D0 and <= Key.D9 => key.ToString()[1..], // "D1" → "1"
+            >= Key.F1 and <= Key.F19 => key.ToString(),
+            _ => key.ToString(),
+        };
+
+        parts.Add(keyStr);
+        return string.Join("", parts);
     }
 
     // ── Language helpers ──────────────────────────────────────────────────────
@@ -161,7 +288,6 @@ public partial class SettingsWindow : Window
 
         _dictEntries.Add(new DictionaryEntry { From = from, To = to });
         AddDictRow(from, to);
-
         TxtDictFrom.Clear();
         TxtDictTo.Clear();
         TxtDictFrom.Focus();
@@ -180,53 +306,22 @@ public partial class SettingsWindow : Window
         };
 
         var sp = new StackPanel { Orientation = Orientation.Horizontal };
-
         string displayTo = string.IsNullOrEmpty(to) ? "(supprimé)" : to;
 
-        sp.Children.Add(new TextBlock
-        {
-            Text              = from,
-            Foreground        = new SolidColorBrush(Color.Parse("#0D0D0D")),
-            FontSize          = 12,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin            = new Avalonia.Thickness(0, 0, 6, 0)
-        });
-        sp.Children.Add(new TextBlock
-        {
-            Text              = "→",
-            Foreground        = new SolidColorBrush(Color.Parse("#C0C0C0")),
-            FontSize          = 12,
-            VerticalAlignment = VerticalAlignment.Center,
-            Margin            = new Avalonia.Thickness(0, 0, 6, 0)
-        });
-        sp.Children.Add(new TextBlock
-        {
-            Text              = displayTo,
-            Foreground        = new SolidColorBrush(string.IsNullOrEmpty(to)
-                ? Color.Parse("#C0C0C0")
-                : Color.Parse("#16A34A")),
-            FontSize          = 12,
-            VerticalAlignment = VerticalAlignment.Center
-        });
+        sp.Children.Add(new TextBlock { Text = from, Foreground = new SolidColorBrush(Color.Parse("#0D0D0D")), FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Margin = new Avalonia.Thickness(0, 0, 6, 0) });
+        sp.Children.Add(new TextBlock { Text = "→",  Foreground = new SolidColorBrush(Color.Parse("#C0C0C0")), FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Margin = new Avalonia.Thickness(0, 0, 6, 0) });
+        sp.Children.Add(new TextBlock { Text = displayTo, Foreground = new SolidColorBrush(string.IsNullOrEmpty(to) ? Color.Parse("#C0C0C0") : Color.Parse("#16A34A")), FontSize = 12, VerticalAlignment = VerticalAlignment.Center });
 
         var btnDel = new Button
         {
-            Content         = "✕",
-            Margin          = new Avalonia.Thickness(8, 0, 0, 0),
-            Padding         = new Avalonia.Thickness(0),
-            Width           = 20,
-            Height          = 20,
-            FontSize        = 10,
-            Background      = new SolidColorBrush(Color.Parse("#F0F0F0")),
-            Foreground      = new SolidColorBrush(Color.Parse("#6B6B6B")),
+            Content = "✕", Margin = new Avalonia.Thickness(8, 0, 0, 0),
+            Padding = new Avalonia.Thickness(0), Width = 20, Height = 20, FontSize = 10,
+            Background = new SolidColorBrush(Color.Parse("#F0F0F0")),
+            Foreground = new SolidColorBrush(Color.Parse("#6B6B6B")),
             BorderThickness = new Avalonia.Thickness(0),
-            Cursor          = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand)
+            Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand)
         };
-        btnDel.Click += (_, _) =>
-        {
-            DictPanel.Children.Remove(row);
-            RebuildDictEntries();
-        };
+        btnDel.Click += (_, _) => { DictPanel.Children.Remove(row); RebuildDictEntries(); };
 
         sp.Children.Add(btnDel);
         row.Child = sp;
@@ -252,15 +347,14 @@ public partial class SettingsWindow : Window
 
     private void BtnSave_Click(object? sender, RoutedEventArgs e)
     {
-        var (code, mods, name) = GetSelectedHotkey();
-        NewHotkeyCode       = code;
-        NewHotkeyModifiers  = mods;
-        NewHotkeyName       = name;
+        NewHotkeyCode       = _capturedCode;
+        NewHotkeyModifiers  = _capturedMods;
+        NewHotkeyName       = _capturedName;
         NewLanguage         = GetSelectedLanguage();
         NewRemoveFillers    = ChkFillers.IsChecked    == true;
-        NewAutoCapitalize   = ChkCapitalize.IsChecked  == true;
-        NewRemoveDuplicates = ChkDuplicates.IsChecked  == true;
-        NewSaveHistory      = ChkHistory.IsChecked     == true;
+        NewAutoCapitalize   = ChkCapitalize.IsChecked == true;
+        NewRemoveDuplicates = ChkDuplicates.IsChecked == true;
+        NewSaveHistory      = ChkHistory.IsChecked    == true;
         NewPersonalDictionary = new List<DictionaryEntry>(_dictEntries);
 
         Tag = true;
@@ -269,6 +363,7 @@ public partial class SettingsWindow : Window
 
     private void BtnCancel_Click(object? sender, RoutedEventArgs e)
     {
+        if (_isRecording) { StopRecording(cancelled: true); return; }
         Tag = false;
         Close();
     }

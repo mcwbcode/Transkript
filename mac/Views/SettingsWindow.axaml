@@ -52,13 +52,26 @@
             <TextBlock Text="TOUCHE DE DICTÉE"
                        Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"
                        Margin="0,0,0,8"/>
-            <ComboBox x:Name="CmbHotkey"
-                      Height="46" FontSize="13"
-                      Background="#F7F7F7" Foreground="#0D0D0D"
-                      BorderBrush="#EBEBEB" BorderThickness="1"
-                      CornerRadius="10" Padding="14,0"
-                      HorizontalContentAlignment="Left"
-                      VerticalContentAlignment="Center"/>
+            <Border x:Name="HotkeyRecorderBorder"
+                    Height="46" CornerRadius="10" Padding="14,0"
+                    Background="#F7F7F7" BorderBrush="#EBEBEB" BorderThickness="1"
+                    Cursor="Hand"
+                    PointerPressed="HotkeyRecorder_PointerPressed">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TxtHotkeyKey"
+                           Grid.Column="0"
+                           FontSize="13" Foreground="#0D0D0D"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtHotkeyHint"
+                           Grid.Column="1"
+                           FontSize="11" Foreground="#C0C0C0"
+                           VerticalAlignment="Center"/>
+              </Grid>
+            </Border>
 
             <TextBlock Text="LANGUE DE TRANSCRIPTION"
                        Foreground="#B0B0B0" FontSize="10" FontWeight="SemiBold"

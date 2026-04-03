@@ -18,11 +18,18 @@ public sealed class Transcriber : IDisposable
     private const QuantizationType ModelQuant = QuantizationType.NoQuantization;
     private const string           ModelFile  = "ggml-small.bin";
 
+    // Model bundled inside the .app (set at build time via build_mac.sh)
+    private static readonly string BundledModelPath = Path.Combine(
+        AppContext.BaseDirectory, "models", ModelFile);
+
+    // Fallback: user-level cache (downloaded on first launch)
     private static readonly string ModelDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
         "Library", "Application Support", "Transkript", "models");
 
-    private static readonly string ModelPath = Path.Combine(ModelDir, ModelFile);
+    private static readonly string ModelPath =
+        File.Exists(BundledModelPath) ? BundledModelPath
+        : Path.Combine(ModelDir, ModelFile);
 
     private WhisperFactory?   _factory;
     private WhisperProcessor? _processor;
