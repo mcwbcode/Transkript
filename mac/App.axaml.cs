@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -107,6 +108,9 @@ public partial class App : Application
             break;
         }
 
+        // Retire l'icône du Dock — on est désormais en mode menu bar uniquement
+        HideFromDock();
+
         // ── Initialisation des services ────────────────────────────────────
         _settings    = AppSettings.Load();
         _overlay     = new OverlayWindow();
@@ -119,6 +123,8 @@ public partial class App : Application
         _menuBar.SettingsRequested += () => Dispatcher.UIThread.Post(OpenSettings);
         _menuBar.HistoryRequested  += () => HistoryManager.OpenHistoryFolder();
         _menuBar.UpdateRequested   += () => Dispatcher.UIThread.Post(OnUpdateRequested);
+        _menuBar.RecordRequested     += () => Dispatcher.UIThread.Post(OnKeyPressed);
+        _menuBar.RecordStopRequested += () => Dispatcher.UIThread.Post(OnKeyReleased);
 
         _overlay.GetLevels = () => _recorder.WaveformLevels;
 
@@ -234,7 +240,11 @@ public partial class App : Application
         _recording  = false;
         _processing = true;
         Logger.Write("OnKeyReleased : arrêt enregistrement");
-        Dispatcher.UIThread.Post(async () => await ProcessRecordingAsync());
+        Dispatcher.UIThread.Post(async () =>
+        {
+            try { await ProcessRecordingAsync(); }
+            catch (Exception ex) { Logger.Write($"[ERREUR] ProcessRecordingAsync (unhandled): {ex}"); _processing = false; }
+        });
     }
 
     // ── Pipeline de transcription ─────────────────────────────────────────────
@@ -313,29 +323,38 @@ public partial class App : Application
     {
         if (_settingsWin != null) { _settingsWin.Activate(); return; }
 
-        _settingsWin = new SettingsWindow(_settings);
-        _settingsWin.SetAccountPlan(_plan);
-        _settingsWin.Closed += (_, _) => _settingsWin = null;
+        // Capture in local — _settingsWin is nulled by Closed handler before await resumes
+        var win = new SettingsWindow(_settings);
+        _settingsWin = win;
+        win.SetAccountPlan(_plan);
+        win.Closed += (_, _) => _settingsWin = null;
 
-        bool saved = await ShowWindowAsync(_settingsWin);
+        bool saved = await ShowWindowAsync(win);
         if (!saved) return;
 
-        bool langChanged = _settingsWin!.NewLanguage != _settings.Language;
+        bool hotkeyChanged = win.NewHotkeyCode      != _settings.HotkeyCode
+                          || win.NewHotkeyModifiers != _settings.HotkeyModifiers;
+        bool langChanged   = win.NewLanguage         != _settings.Language;
 
-        _settings.HotkeyCode        = _settingsWin.NewHotkeyCode;
-        _settings.HotkeyModifiers   = _settingsWin.NewHotkeyModifiers;
-        _settings.HotkeyName        = _settingsWin.NewHotkeyName;
-        _settings.Language           = _settingsWin.NewLanguage;
-        _settings.RemoveFillers      = _settingsWin.NewRemoveFillers;
-        _settings.AutoCapitalize     = _settingsWin.NewAutoCapitalize;
-        _settings.RemoveDuplicates   = _settingsWin.NewRemoveDuplicates;
-        _settings.SaveHistory        = _settingsWin.NewSaveHistory;
-        _settings.PersonalDictionary = _settingsWin.NewPersonalDictionary;
+        _settings.HotkeyCode        = win.NewHotkeyCode;
+        _settings.HotkeyModifiers   = win.NewHotkeyModifiers;
+        _settings.HotkeyName        = win.NewHotkeyName;
+        _settings.Language          = win.NewLanguage;
+        _settings.RemoveFillers     = win.NewRemoveFillers;
+        _settings.AutoCapitalize    = win.NewAutoCapitalize;
+        _settings.RemoveDuplicates  = win.NewRemoveDuplicates;
+        _settings.SaveHistory       = win.NewSaveHistory;
+        _settings.PersonalDictionary = win.NewPersonalDictionary;
         _settings.Save();
 
-        _hook!.HotkeyCode      = _settings.HotkeyCode;
-        _hook.HotkeyModifiers  = _settings.HotkeyModifiers;
-        Logger.Write($"Paramètres mis à jour : hotkey={_settings.HotkeyName}, langue={_settings.Language}");
+        Logger.Write($"Paramètres : hotkey={_settings.HotkeyName}, langue={_settings.Language}");
+
+        if (hotkeyChanged)
+        {
+            _hook!.HotkeyCode      = _settings.HotkeyCode;
+            _hook.HotkeyModifiers  = _settings.HotkeyModifiers;
+            _hook.Reinstall();
+        }
 
         if (langChanged && _transcriber!.IsReady)
         {
@@ -371,22 +390,73 @@ public partial class App : Application
 
         try
         {
-            var progress = new Progress<int>(pct =>
+            // ── 1. Download DMG ───────────────────────────────────────────────
+            var dlProgress = new Progress<int>(pct =>
                 Dispatcher.UIThread.Post(() => _menuBar!.SetStatus($"Téléchargement… {pct}%")));
 
-            string installerPath = await Task.Run(() =>
-                UpdateChecker.DownloadInstallerAsync(_pendingUpdate.DownloadUrl, progress));
+            string dmgPath = await Task.Run(() =>
+                UpdateChecker.DownloadInstallerAsync(_pendingUpdate.DownloadUrl, dlProgress));
 
-            Logger.Write($"Installateur téléchargé : {installerPath}");
-            System.Diagnostics.Process.Start("open", installerPath);
+            Logger.Write($"DMG téléchargé : {dmgPath}");
+
+            // ── 2. Auto-install (mount → rsync → unmount) ─────────────────────
+            // If the download is a DMG, install silently; otherwise fall back to open
+            if (dmgPath.EndsWith(".dmg", StringComparison.OrdinalIgnoreCase))
+            {
+                var installProgress = new Progress<string>(msg =>
+                    Dispatcher.UIThread.Post(() => _menuBar!.SetStatus(msg)));
+
+                string installedApp = await Task.Run(() =>
+                    UpdateChecker.AutoInstallMacAsync(dmgPath, installProgress));
+
+                Logger.Write($"Mise à jour installée : {installedApp}");
+                _menuBar!.SetStatus("Redémarrage…");
+
+                // Relaunch the freshly installed app, then quit this instance
+                System.Diagnostics.Process.Start("open", $"-a \"{installedApp}\"");
+            }
+            else
+            {
+                // Non-DMG fallback (shouldn't happen on Mac, but safe)
+                System.Diagnostics.Process.Start("open", dmgPath);
+            }
+
             Shutdown();
         }
         catch (Exception ex)
         {
             Logger.Write($"[ERREUR] OnUpdateRequested : {ex.Message}");
-            _menuBar!.SetStatus("Échec du téléchargement de la mise à jour");
+            _menuBar!.SetStatus("Échec de la mise à jour");
+            await Task.Delay(2000);
             RestoreReadyStatus();
         }
+    }
+
+    // ── Dock ──────────────────────────────────────────────────────────────────
+
+    private const string ObjC = "/usr/lib/libobjc.A.dylib";
+
+    [DllImport(ObjC, EntryPoint = "objc_msgSend")]
+    private static extern IntPtr ObjcSend(IntPtr obj, IntPtr sel);
+
+    [DllImport(ObjC, EntryPoint = "objc_msgSend")]
+    private static extern bool ObjcSendI(IntPtr obj, IntPtr sel, nint a);
+
+    [DllImport(ObjC, EntryPoint = "objc_getClass")]
+    private static extern IntPtr ObjcGetClass(string name);
+
+    [DllImport(ObjC, EntryPoint = "sel_registerName")]
+    private static extern IntPtr ObjcSel(string name);
+
+    private static void HideFromDock()
+    {
+        try
+        {
+            // NSApplicationActivationPolicyAccessory = 1 → no Dock icon, no menu bar
+            IntPtr nsApp = ObjcSend(ObjcGetClass("NSApplication"), ObjcSel("sharedApplication"));
+            ObjcSendI(nsApp, ObjcSel("setActivationPolicy:"), 1);
+        }
+        catch (Exception ex) { Logger.Write($"HideFromDock: {ex.Message}"); }
     }
 
     // ── Arrêt ─────────────────────────────────────────────────────────────────

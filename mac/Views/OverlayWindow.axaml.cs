@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
@@ -36,6 +37,29 @@ public partial class OverlayWindow : Window
         _timer.Tick += OnTick;
     }
 
+    // ── ObjC P/Invoke for window level ───────────────────────────────────────
+    private const string ObjC = "/usr/lib/libobjc.A.dylib";
+
+    [DllImport(ObjC, EntryPoint = "objc_msgSend")]
+    private static extern IntPtr Send(IntPtr obj, IntPtr sel);
+
+    [DllImport(ObjC, EntryPoint = "objc_msgSend")]
+    private static extern void SendVoidI(IntPtr obj, IntPtr sel, nint a);
+
+    [DllImport(ObjC, EntryPoint = "sel_registerName")]
+    private static extern IntPtr Sel(string name);
+
+    private const nint NSStatusWindowLevel = 25;
+
+    private void ForceToFront()
+    {
+        var handle = TryGetPlatformHandle();
+        if (handle == null) return;
+        IntPtr nsWindow = handle.Handle;
+        SendVoidI(nsWindow, Sel("setLevel:"), NSStatusWindowLevel);
+        Send(nsWindow, Sel("orderFrontRegardless"));
+    }
+
     // ── Public API ────────────────────────────────────────────────────────────
 
     public void ShowOverlay()
@@ -43,6 +67,7 @@ public partial class OverlayWindow : Window
         PlaceAtBottomCenter();
         _startTime = DateTime.UtcNow;
         Show();
+        ForceToFront();
         Pill.Opacity = 1;
         _timer.Start();
     }
@@ -127,7 +152,7 @@ public partial class OverlayWindow : Window
         if (screen == null) return;
 
         var wa      = screen.WorkingArea;
-        double scale = screen.PixelDensity;
+        double scale = screen.Scaling;
         int winPxW  = (int)(Width  * scale);
         int winPxH  = (int)(Height * scale);
 

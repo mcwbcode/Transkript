@@ -1,80 +1,64 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace Transkript.Platform;
 
 /// <summary>
-/// Registers a system-wide hotkey on macOS using the Carbon Event Manager API
-/// (RegisterEventHotKey). Works without accessibility permissions.
-///
-/// The hotkey is polled via a background thread that calls GetNextEventMatchingMask.
+/// Registers a system-wide hotkey via macOS Carbon RegisterEventHotKey.
+/// Uses [UnmanagedCallersOnly] for the Carbon callback — safe on arm64/.NET 8.
 /// </summary>
-public sealed class GlobalHotkeyMac : IDisposable
+public sealed unsafe class GlobalHotkeyMac : IDisposable
 {
     // ── Carbon P/Invoke ───────────────────────────────────────────────────────
-    private const string CarbonLib = "/System/Library/Frameworks/Carbon.framework/Carbon";
+    private const string Carbon = "/System/Library/Frameworks/Carbon.framework/Carbon";
 
-    [DllImport(CarbonLib)]
+    [DllImport(Carbon)]
     private static extern int RegisterEventHotKey(
-        uint inHotKeyCode,
-        uint inHotKeyModifiers,
-        EventHotKeyID inHotKeyID,
-        IntPtr inTarget,
-        uint inOptions,
-        out IntPtr outRef);
+        uint keyCode, uint modifiers, EventHotKeyID id,
+        IntPtr target, uint options, out IntPtr outRef);
 
-    [DllImport(CarbonLib)]
-    private static extern int UnregisterEventHotKey(IntPtr inHotKey);
+    [DllImport(Carbon)]
+    private static extern int UnregisterEventHotKey(IntPtr inRef);
 
-    [DllImport(CarbonLib)]
+    [DllImport(Carbon)]
     private static extern IntPtr GetApplicationEventTarget();
 
-    [DllImport(CarbonLib)]
+    [DllImport(Carbon)]
     private static extern int InstallEventHandler(
-        IntPtr inTarget,
-        IntPtr inHandler,
-        uint inNumTypes,
-        [MarshalAs(UnmanagedType.LPArray)] EventTypeSpec[] inList,
-        IntPtr inUserData,
-        out IntPtr outRef);
+        IntPtr target, IntPtr handler, uint numTypes,
+        IntPtr specs,   // passed as fixed pointer — LPArray marshaling unreliable on arm64
+        IntPtr userData, out IntPtr outRef);
 
-    [DllImport(CarbonLib)]
+    [DllImport(Carbon)]
     private static extern int RemoveEventHandler(IntPtr inRef);
 
-    [DllImport(CarbonLib)]
+    [DllImport(Carbon)]
+    private static extern uint GetEventKind(IntPtr eventRef);
+
+    [DllImport(Carbon)]
     private static extern int GetEventParameter(
-        IntPtr inEvent,
-        uint inName,
-        uint inDesiredType,
-        IntPtr outActualType,
-        uint inBufferSize,
-        IntPtr outActualSize,
+        IntPtr eventRef, uint paramName, uint desiredType,
+        IntPtr outActualType, uint bufferSize, IntPtr outActualSize,
         out EventHotKeyID outData);
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct EventHotKeyID
-    {
-        public uint signature;
-        public uint id;
-    }
+    private struct EventHotKeyID { public uint signature; public uint id; }
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct EventTypeSpec
-    {
-        public uint eventClass;
-        public uint eventKind;
-    }
+    private struct EventTypeSpec { public uint eventClass; public uint eventKind; }
 
     // Carbon constants
-    private const uint kEventClassKeyboard = 0x6B657962; // 'keyb'
-    private const uint kEventHotKeyPressed = 5;
-    private const uint kEventHotKeyReleased = 6;
+    private const uint kEventClassKeyboard     = 0x6B657962; // 'keyb'
+    private const uint kEventHotKeyPressed    = 5;
+    private const uint kEventHotKeyReleased   = 6;
     private const uint kEventParamDirectObject = 0x2D2D2D2D; // '----'
-    private const uint typeEventHotKeyID = 0x686B6579; // 'hkey'
+    private const uint typeEventHotKeyID      = 0x686B6579; // 'hkey'
+    private const uint typeWildCard           = 0x2A2A2A2A; // '****'
+    private const uint OurSignature           = 0x54524E53; // 'TRNS'
+    private const uint OurHotkeyId           = 1;
 
     // ── macOS Virtual Key Codes ───────────────────────────────────────────────
-    // Common keys for use as hotkeys
     public const uint VK_F13       = 105;
     public const uint VK_F14       = 107;
     public const uint VK_F15       = 113;
@@ -82,63 +66,56 @@ public sealed class GlobalHotkeyMac : IDisposable
     public const uint VK_F17       = 64;
     public const uint VK_F18       = 79;
     public const uint VK_F19       = 80;
-    public const uint VK_CAPS_LOCK = 57;  // CapsLock (good default for dictation)
+    public const uint VK_CAPS_LOCK = 57;
     public const uint VK_RIGHT_CMD = 54;
 
-    // macOS modifier keys (Carbon)
-    public const uint cmdKey      = 0x0100;
-    public const uint shiftKey    = 0x0200;
-    public const uint optionKey   = 0x0800;
-    public const uint controlKey  = 0x1000;
+    // macOS modifier flags (Carbon)
+    public const uint cmdKey     = 0x0100;
+    public const uint shiftKey   = 0x0200;
+    public const uint optionKey  = 0x0800;
+    public const uint controlKey = 0x1000;
 
-    // ── State ────────────────────────────────────────────────────────────────
-    private IntPtr _hotKeyRef      = IntPtr.Zero;
-    private IntPtr _handlerRef     = IntPtr.Zero;
-    private bool   _keyDown        = false;
-    private bool   _disposed       = false;
+    // ── Static state (one instance per process) ───────────────────────────────
+    private static GlobalHotkeyMac? _instance;
+    private static bool _s_keyDown;
 
-    // Delegate must be kept alive
-    private readonly CarbonEventHandlerDelegate _handlerDelegate;
-    private delegate int CarbonEventHandlerDelegate(
-        IntPtr callRef, IntPtr eventRef, IntPtr userData);
+    // ── Instance state ────────────────────────────────────────────────────────
+    private IntPtr _hotKeyRef  = IntPtr.Zero;
+    private IntPtr _handlerRef = IntPtr.Zero;
+    private bool   _disposed;
 
-    /// <summary>macOS virtual key code for the hotkey. Default: F13 (good dictation key).</summary>
-    public uint HotkeyCode { get; set; } = VK_F13;
-
-    /// <summary>macOS modifier flags. Default: 0 (no modifier).</summary>
+    public uint HotkeyCode      { get; set; } = VK_F13;
     public uint HotkeyModifiers { get; set; } = 0;
 
     public event Action? KeyPressed;
     public event Action? KeyReleased;
 
-    public GlobalHotkeyMac()
-    {
-        _handlerDelegate = EventHandler;
-    }
-
     public void Install()
     {
-        var pressSpec   = new EventTypeSpec { eventClass = kEventClassKeyboard, eventKind = kEventHotKeyPressed  };
-        var releaseSpec = new EventTypeSpec { eventClass = kEventClassKeyboard, eventKind = kEventHotKeyReleased };
+        _instance  = this;
+        _s_keyDown = false;
+
+        var specs = stackalloc EventTypeSpec[2];
+        specs[0] = new EventTypeSpec { eventClass = kEventClassKeyboard, eventKind = kEventHotKeyPressed  };
+        specs[1] = new EventTypeSpec { eventClass = kEventClassKeyboard, eventKind = kEventHotKeyReleased };
 
         IntPtr target = GetApplicationEventTarget();
 
-        // Install event handler for both press and release
-        var specs = new[] { pressSpec, releaseSpec };
+        // Install using [UnmanagedCallersOnly] function pointer — arm64 safe
+        // Pass specs as raw pointer to avoid LPArray marshaling issues on arm64
         int err = InstallEventHandler(
             target,
-            Marshal.GetFunctionPointerForDelegate(_handlerDelegate),
-            (uint)specs.Length,
-            specs,
+            (IntPtr)(delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, int>)&CbHotkey,
+            2,
+            (IntPtr)specs,
             IntPtr.Zero,
             out _handlerRef);
 
         if (err != 0)
             Logger.Write($"GlobalHotkeyMac: InstallEventHandler error {err}");
 
-        // Register the hotkey
-        var hotKeyId = new EventHotKeyID { signature = 0x54524E53, id = 1 }; // 'TRNS'
-        err = RegisterEventHotKey(HotkeyCode, HotkeyModifiers, hotKeyId, target, 0, out _hotKeyRef);
+        var hkId = new EventHotKeyID { signature = OurSignature, id = OurHotkeyId };
+        err = RegisterEventHotKey(HotkeyCode, HotkeyModifiers, hkId, target, 0, out _hotKeyRef);
 
         if (err != 0)
             Logger.Write($"GlobalHotkeyMac: RegisterEventHotKey error {err}");
@@ -146,41 +123,66 @@ public sealed class GlobalHotkeyMac : IDisposable
             Logger.Write($"GlobalHotkeyMac: Hotkey registered (code={HotkeyCode}, mods={HotkeyModifiers})");
     }
 
-    private int EventHandler(IntPtr callRef, IntPtr eventRef, IntPtr userData)
-    {
-        // Get the event class/kind
-        // We need to figure out if it's press or release by checking which handler fired
-        // We do this by checking the event kind via GetEventKind
-        uint kind = GetEventKind(eventRef);
+    // ── Carbon callback — [UnmanagedCallersOnly] prevents exception-unwind crash ──
 
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    private static int CbHotkey(IntPtr callRef, IntPtr eventRef, IntPtr userData)
+    {
         try
         {
-            if (kind == kEventHotKeyPressed && !_keyDown)
+            // We have exactly one registered hotkey, so any kEventHotKeyPressed /
+            // kEventHotKeyReleased reaching this handler is ours.
+            // GetEventParameter returns errAECoercionFail (-1700) on arm64/macOS 26
+            // regardless of the type constant used — skip it entirely.
+            uint kind = GetEventKind(eventRef);
+
+            if (kind == kEventHotKeyPressed && !_s_keyDown)
             {
-                _keyDown = true;
-                KeyPressed?.Invoke();
+                _s_keyDown = true;
+                _instance?.KeyPressed?.Invoke();
             }
-            else if (kind == kEventHotKeyReleased && _keyDown)
+            else if (kind == kEventHotKeyReleased && _s_keyDown)
             {
-                _keyDown = false;
-                KeyReleased?.Invoke();
+                _s_keyDown = false;
+                _instance?.KeyReleased?.Invoke();
             }
         }
         catch (Exception ex)
         {
-            Logger.Write($"GlobalHotkeyMac EventHandler: {ex.Message}");
+            // Must never throw out of [UnmanagedCallersOnly]
+            try { Logger.Write($"GlobalHotkeyMac callback error: {ex.GetType().Name}: {ex.Message}"); } catch { }
         }
 
         return 0; // noErr
     }
 
-    [DllImport(CarbonLib)]
-    private static extern uint GetEventKind(IntPtr eventRef);
+    /// <summary>
+    /// Re-registers the hotkey after HotkeyCode/HotkeyModifiers have been changed.
+    /// The event handler stays installed; only the Carbon hotkey binding is swapped.
+    /// </summary>
+    public void Reinstall()
+    {
+        if (_hotKeyRef != IntPtr.Zero)
+        {
+            UnregisterEventHotKey(_hotKeyRef);
+            _hotKeyRef = IntPtr.Zero;
+        }
+
+        IntPtr target = GetApplicationEventTarget();
+        var hkId = new EventHotKeyID { signature = OurSignature, id = OurHotkeyId };
+        int err = RegisterEventHotKey(HotkeyCode, HotkeyModifiers, hkId, target, 0, out _hotKeyRef);
+
+        if (err != 0)
+            Logger.Write($"GlobalHotkeyMac: Reinstall error {err}");
+        else
+            Logger.Write($"GlobalHotkeyMac: Hotkey re-registered (code={HotkeyCode}, mods={HotkeyModifiers})");
+    }
 
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
+        if (_instance == this) _instance = null;
 
         if (_hotKeyRef != IntPtr.Zero)
         {
