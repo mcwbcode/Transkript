@@ -2,11 +2,14 @@ name: Build & Release Mac DMG
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, release/mac-paste-fix ]
     paths:
       - 'mac/**'
       - '.github/workflows/build-mac.yml'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-mac:
@@ -54,27 +57,24 @@ jobs:
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: Transkript v1.0.0
+          tag_name: v1.0.0-mac
+          name: Transkript 1.0.0 — macOS (Apple Silicon)
           body: |
-            ## Transkript v1.0.0
+            ## Transkript 1.0.0 pour macOS
 
-            Application de transcription vocale locale propulsée par Whisper d'OpenAI.
+            **Requis :** macOS 12+ · Apple Silicon (arm64)
 
-            ### Téléchargements
+            ### Installation
+            1. Ouvrez `Transkript-1.0.0-arm64.dmg`
+            2. Glissez `Transkript.app` dans le dossier Applications
+            3. Au premier lancement : clic droit → Ouvrir
 
-            | Plateforme | Lien |
-            |---|---|
-            | **Windows 10/11** | [Transkript-Setup.exe](https://github.com/mcwbcode/Transkript/releases/download/v1/Transkript-Setup.exe) |
-            | **macOS Apple Silicon (M1/M2/M3)** | Voir le DMG ci-dessous |
-
-            ### Installation macOS
-            1. Téléchargez **Transkript-1.0.0-arm64.dmg**
-            2. Ouvrez le fichier .dmg
-            3. Glissez **Transkript.app** vers le dossier **Applications**
-            4. Premier lancement : clic droit → **Ouvrir** (pour contourner Gatekeeper)
-            5. Autorisez l'accès **Microphone** dans Réglages Système → Confidentialité
-
-            > Le modèle Whisper (~488 Mo) se télécharge automatiquement au premier lancement.
+            ### Nouveautés
+            - Dictée vocale instantanée avec Whisper (100% local)
+            - Hotkey configurable (⌥ Espace par défaut)
+            - Icône dans la barre de menus, pas de Dock
+            - Overlay d'enregistrement toujours au premier plan
+            - Correction : le texte transcrit est maintenant bien inséré à la position du curseur
+            - Mise à jour automatique
           files: dist/*.dmg
           token: ${{ secrets.GITHUB_TOKEN }}
