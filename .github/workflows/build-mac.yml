@@ -2,7 +2,7 @@ name: Build & Release Mac DMG
 
 on:
   push:
-    branches: [ master, release/mac-paste-fix ]
+    branches: [ master, revert/mac-original ]
     paths:
       - 'mac/**'
       - '.github/workflows/build-mac.yml'
@@ -74,7 +74,7 @@ jobs:
             - Hotkey configurable (⌥ Espace par défaut)
             - Icône dans la barre de menus, pas de Dock
             - Overlay d'enregistrement toujours au premier plan
-            - Correction : le texte transcrit est maintenant bien inséré à la position du curseur
+
             - Mise à jour automatique
           files: dist/*.dmg
           token: ${{ secrets.GITHUB_TOKEN }}
