@@ -74,6 +74,7 @@ jobs:
             - Hotkey configurable (⌥ Espace par défaut)
             - Icône dans la barre de menus, pas de Dock
             - Overlay d'enregistrement toujours au premier plan
+
             - Mise à jour automatique
           files: dist/*.dmg
           token: ${{ secrets.GITHUB_TOKEN }}
