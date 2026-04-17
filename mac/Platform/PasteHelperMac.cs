@@ -41,6 +41,9 @@ public static class PasteHelperMac
     [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
     private static extern int MsgSendIntRet(IntPtr receiver, IntPtr selector, IntPtr arg1, IntPtr arg2);
 
+    [DllImport(ObjCLib, EntryPoint = "objc_msgSend")]
+    private static extern void MsgSendNUInt(IntPtr receiver, IntPtr selector, nuint arg1);
+
     // ── Accessibility (TCC) ───────────────────────────────────────────────────
     [DllImport(AppServicesLib)]
     private static extern bool AXIsProcessTrusted();
@@ -61,6 +64,7 @@ public static class PasteHelperMac
     private const ushort kVK_ANSI_V            = 0x09;
     private const ulong  kCGEventFlagMaskCommand = 0x00100000;
     private const uint   kCGHIDEventTap          = 0;
+    private const nuint  NSApplicationActivateIgnoringOtherApps = 2;
 
     public static bool IsAccessibilityGranted() => AXIsProcessTrusted();
 
@@ -172,7 +176,8 @@ public static class PasteHelperMac
                 IntPtr appInst = MsgSend(arr, RegisterSelector("firstObject"));
                 if (appInst != IntPtr.Zero)
                 {
-                    MsgSendInt(appInst, RegisterSelector("activateWithOptions:"), 2);
+                    MsgSendNUInt(appInst, RegisterSelector("activateWithOptions:"),
+                                 NSApplicationActivateIgnoringOtherApps);
                     Thread.Sleep(120);
                 }
             }
