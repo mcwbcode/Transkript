@@ -1,0 +1,80 @@
+name: Build & Release Mac DMG
+
+on:
+  push:
+    branches: [ master, revert/mac-original ]
+    paths:
+      - 'mac/**'
+      - '.github/workflows/build-mac.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-mac:
+    name: Build macOS DMG
+    runs-on: macos-14   # Apple Silicon (M1)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore packages
+        working-directory: mac
+        run: dotnet restore TranskriptMac.csproj
+
+      - name: Build .app bundle (arm64)
+        working-directory: mac
+        run: |
+          chmod +x build_mac.sh
+          ./build_mac.sh arm64
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Create DMG (arm64)
+        working-directory: mac
+        run: |
+          chmod +x make_installer_mac.sh
+          ./make_installer_mac.sh arm64
+
+      - name: List dist
+        run: ls -lh dist/
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Transkript-mac-arm64
+          path: dist/*.dmg
+          retention-days: 30
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-mac
+          name: Transkript 1.0.0 — macOS (Apple Silicon)
+          body: |
+            ## Transkript 1.0.0 pour macOS
+
+            **Requis :** macOS 12+ · Apple Silicon (arm64)
+
+            ### Installation
+            1. Ouvrez `Transkript-1.0.0-arm64.dmg`
+            2. Glissez `Transkript.app` dans le dossier Applications
+            3. Au premier lancement : clic droit → Ouvrir
+
+            ### Nouveautés
+            - Dictée vocale instantanée avec Whisper (100% local)
+            - Hotkey configurable (⌥ Espace par défaut)
+            - Icône dans la barre de menus, pas de Dock
+            - Overlay d'enregistrement toujours au premier plan
+
+            - Mise à jour automatique
+          files: dist/*.dmg
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -105,6 +105,10 @@
     .dl-card .card-label { color: rgba(255,255,255,.4); }
     .dl-card .card-title { color: #fff; }
     .dl-card .card-desc { color: rgba(255,255,255,.55); }
+    .dl-card-mac { background: #1a1a2e; border-color: #1a1a2e; color: #fff; }
+    .dl-card-mac .card-label { color: rgba(255,255,255,.4); }
+    .dl-card-mac .card-title { color: #fff; }
+    .dl-card-mac .card-desc { color: rgba(255,255,255,.55); }
     .card-label { font-size: 11px; font-weight: 700; letter-spacing: 0.9px; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; }
     .card-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 8px; }
     .card-desc { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
@@ -225,17 +229,26 @@
     <button class="btn btn-upgrade">En savoir plus</button>
   </div>
 
-  <!-- MAIN GRID -->
+  <!-- DOWNLOAD SECTION HEADER -->
+  <div class="section-header" style="margin-bottom:12px">
+    <h2>Télécharger l'application</h2>
+    <p>Disponible sur Windows et macOS. Le modèle Whisper (~488 Mo) se télécharge au premier lancement.</p>
+  </div>
+
+  <!-- DOWNLOAD CARDS -->
   <div class="grid grid-2" style="margin-bottom:16px">
 
-    <!-- DOWNLOAD -->
+    <!-- WINDOWS -->
     <div class="card dl-card">
-      <div class="card-label">Application Windows</div>
+      <div class="card-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:-2px;margin-right:5px;opacity:.6"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+        Windows 10 / 11
+      </div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-        <div class="card-title">Télécharger Transkript</div>
+        <div class="card-title">Transkript pour Windows</div>
         <div class="version-tag">v1.0.0</div>
       </div>
-      <div class="card-desc">Installez l'application sur votre PC Windows 10/11. Le modèle Whisper (~488 Mo) sera téléchargé au premier lancement.</div>
+      <div class="card-desc">Installation en un clic sur Windows 10/11. Fonctionne en arrière-plan dans la barre des tâches.</div>
       <a href="https://github.com/mcwbcode/Transkript/releases/download/v1/Transkript-Setup.exe" class="btn btn-red" style="font-size:14px;padding:11px 20px">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -243,6 +256,30 @@
         Télécharger (.exe)
       </a>
     </div>
+
+    <!-- MAC -->
+    <div class="card dl-card-mac">
+      <div class="card-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:-2px;margin-right:5px;opacity:.6"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.54 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+        macOS (Apple Silicon &amp; Intel)
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div class="card-title">Transkript pour Mac</div>
+        <div class="version-tag">v1.0.0</div>
+      </div>
+      <div class="card-desc">Fonctionne en barre des menus sur macOS 12+. M1, M2, M3 et Intel pris en charge. Raccourci : <strong style="background:rgba(255,255,255,.12);border-radius:4px;padding:2px 6px;font-size:11px">⌥ Space</strong></div>
+      <a href="https://github.com/mcwbcode/Transkript/releases/download/v1.0.0-mac/Transkript-1.0.0-arm64.dmg" class="btn" style="font-size:14px;padding:11px 20px;background:#fff;color:#111;font-weight:700" id="macDownloadBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Télécharger (.dmg)
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ACCOUNT + INFO GRID -->
+  <div class="grid grid-2" style="margin-bottom:16px">
 
     <!-- ACCOUNT INFO -->
     <div class="card">
@@ -266,6 +303,41 @@
         <div class="info-row">
           <span class="info-key">Version app</span>
           <span class="info-val" style="color:var(--text-3)">v1.0.0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAC INSTALL STEPS -->
+    <div class="card card-sm">
+      <div class="card-label">Guide installation macOS</div>
+      <div class="steps-list" style="margin-top:4px">
+        <div class="step-item">
+          <div class="step-bubble active" style="background:rgba(0,0,0,.07)">1</div>
+          <div class="step-text">
+            <div class="step-title">Télécharger le .dmg</div>
+            <div class="step-desc">Ouvrez le fichier DMG téléchargé.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-bubble active" style="background:rgba(0,0,0,.07)">2</div>
+          <div class="step-text">
+            <div class="step-title">Glisser dans Applications</div>
+            <div class="step-desc">Faites glisser Transkript.app dans le dossier Applications.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-bubble active" style="background:rgba(0,0,0,.07)">3</div>
+          <div class="step-text">
+            <div class="step-title">Contourner Gatekeeper</div>
+            <div class="step-desc">Au premier lancement : clic droit → <strong>Ouvrir</strong> pour confirmer.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-bubble active" style="background:rgba(0,0,0,.07)">4</div>
+          <div class="step-text">
+            <div class="step-title">Autoriser le microphone</div>
+            <div class="step-desc">Réglages Système → Confidentialité → Microphone → Transkript ✓</div>
+          </div>
         </div>
       </div>
     </div>
@@ -298,7 +370,7 @@
           <div class="step-bubble active">2</div>
           <div class="step-text">
             <div class="step-title">Installer l'application</div>
-            <div class="step-desc">Téléchargez et installez Transkript sur votre PC Windows.</div>
+            <div class="step-desc">Téléchargez Transkript pour Windows (.exe) ou macOS (.dmg) ci-dessus.</div>
           </div>
         </div>
       </div>
@@ -321,7 +393,7 @@
   <!-- USAGE GUIDE -->
   <div class="section-header">
     <h2>Comment dicter</h2>
-    <p>Transkript fonctionne dans n'importe quelle application Windows.</p>
+    <p>Transkript fonctionne dans n'importe quelle application, sur Windows et macOS.</p>
   </div>
 
   <div class="grid grid-2">
@@ -329,12 +401,16 @@
     <div class="card card-sm">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <span style="font-size:24px">⌨️</span>
-        <div class="card-title" style="font-size:16px;margin-bottom:0">Raccourci universel</div>
+        <div class="card-title" style="font-size:16px;margin-bottom:0">Raccourcis clavier</div>
       </div>
-      <p style="font-size:13.5px;color:var(--text-2);line-height:1.6">
-        Placez votre curseur là où vous voulez écrire, puis appuyez sur
+      <p style="font-size:13.5px;color:var(--text-2);line-height:1.8">
+        Placez votre curseur là où vous voulez écrire, puis :<br>
+        <strong style="color:#111">Windows :</strong>
         <strong style="background:rgba(0,0,0,.07);color:#111;border-radius:4px;padding:2px 6px;font-size:12px">Ctrl + →</strong>
-        pour commencer à dicter. Relâchez pour valider.
+        pour commencer à dicter.<br>
+        <strong style="color:#111">macOS :</strong>
+        <strong style="background:rgba(0,0,0,.07);color:#111;border-radius:4px;padding:2px 6px;font-size:12px">⌥ Space</strong>
+        pour commencer à dicter.
       </p>
     </div>
 

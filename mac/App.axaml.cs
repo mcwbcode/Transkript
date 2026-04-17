@@ -231,6 +231,7 @@ public partial class App : Application
         {
             try
             {
+                PasteHelperMac.SaveFrontmostApp();
                 _recorder!.Start();
                 _overlay!.ShowOverlay();
                 _menuBar!.SetStatus("Enregistrement…");
@@ -295,7 +296,8 @@ public partial class App : Application
             }
             else
             {
-                await Task.Delay(250);
+                PasteHelperMac.ActivateSavedApp();
+                await Task.Delay(300);
                 PasteHelperMac.Paste(text);
                 int words = TextProcessor.CountWords(text);
                 _menuBar.SetStatus($"✓  {words} mot{(words > 1 ? "s" : "")} ({text.Length} car.)");

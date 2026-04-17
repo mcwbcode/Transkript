@@ -118,6 +118,49 @@ public static class PasteHelperMac
         }
     }
 
+    // NSApplicationActivateIgnoringOtherApps = 1 << 1
+    private const nuint NSApplicationActivateIgnoringOtherApps = 2;
+
+    private static IntPtr _savedFrontApp = IntPtr.Zero;
+
+    /// <summary>
+    /// Saves the currently frontmost app. Call this before showing the overlay
+    /// so we know where to send the paste after transcription.
+    /// </summary>
+    public static void SaveFrontmostApp()
+    {
+        try
+        {
+            IntPtr wsClass = GetClass("NSWorkspace");
+            IntPtr ws      = MsgSend(wsClass, RegisterSelector("sharedWorkspace"));
+            _savedFrontApp = MsgSend(ws, RegisterSelector("frontmostApplication"));
+            Logger.Write("SaveFrontmostApp : OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.Write($"SaveFrontmostApp error: {ex.Message}");
+            _savedFrontApp = IntPtr.Zero;
+        }
+    }
+
+    /// <summary>
+    /// Re-activates the saved app so Cmd+V reaches the right window.
+    /// </summary>
+    public static void ActivateSavedApp()
+    {
+        if (_savedFrontApp == IntPtr.Zero) return;
+        try
+        {
+            MsgSendNUInt(_savedFrontApp, RegisterSelector("activateWithOptions:"),
+                         NSApplicationActivateIgnoringOtherApps);
+            Logger.Write("ActivateSavedApp : OK");
+        }
+        catch (Exception ex)
+        {
+            Logger.Write($"ActivateSavedApp error: {ex.Message}");
+        }
+    }
+
     public static void Paste(string text)
     {
         // Read bundle ID before releasing the retained object
