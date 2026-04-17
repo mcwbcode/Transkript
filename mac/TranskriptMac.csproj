@@ -5,7 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Transkript</RootNamespace>
     <AssemblyName>Transkript</AssemblyName>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -24,10 +24,10 @@
 
   <ItemGroup>
     <!-- Avalonia UI – cross-platform WPF-like framework -->
-    <PackageReference Include="Avalonia"                           Version="11.2.3" />
-    <PackageReference Include="Avalonia.Desktop"                  Version="11.2.3" />
-    <PackageReference Include="Avalonia.Fonts.Inter"              Version="11.2.3" />
-    <PackageReference Include="Avalonia.Themes.Fluent"            Version="11.2.3" />
+    <PackageReference Include="Avalonia"                           Version="11.3.13" />
+    <PackageReference Include="Avalonia.Desktop"                  Version="11.3.13" />
+    <PackageReference Include="Avalonia.Fonts.Inter"              Version="11.3.13" />
+    <PackageReference Include="Avalonia.Themes.Fluent"            Version="11.3.13" />
     <!-- Whisper speech-to-text (cross-platform, CPU runtime) -->
     <PackageReference Include="Whisper.net"                       Version="1.7.2"  />
     <PackageReference Include="Whisper.net.Runtime"               Version="1.7.2"  />

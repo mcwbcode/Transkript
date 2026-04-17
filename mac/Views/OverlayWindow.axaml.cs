@@ -37,7 +37,7 @@ public partial class OverlayWindow : Window
         _timer.Tick += OnTick;
     }
 
-    // ── ObjC P/Invoke for window level ───────────────────────────────────────
+    // ── ObjC P/Invoke ─────────────────────────────────────────────────────────
     private const string ObjC = "/usr/lib/libobjc.A.dylib";
 
     [DllImport(ObjC, EntryPoint = "objc_msgSend")]
@@ -51,7 +51,28 @@ public partial class OverlayWindow : Window
 
     private const nint NSStatusWindowLevel = 25;
 
-    private void ForceToFront()
+    // ── One-time native initialization ────────────────────────────────────────
+
+    /// <summary>
+    /// Call once after the window is created. Triggers Avalonia's native window
+    /// initialization via Show(), then immediately removes it from screen via
+    /// native orderOut: — this keeps the Avalonia object alive and the Signaler
+    /// observer stable, avoiding the CFRunLoop PAC crash on macOS 26.
+    /// </summary>
+    public void InitializeNative()
+    {
+        Show();   // initializes libAvaloniaNative resources once
+        NativeOrderOut();
+    }
+
+    private void NativeOrderOut()
+    {
+        var handle = TryGetPlatformHandle();
+        if (handle == null) return;
+        Send(handle.Handle, Sel("orderOut:"));
+    }
+
+    private void NativeOrderFront()
     {
         var handle = TryGetPlatformHandle();
         if (handle == null) return;
@@ -66,8 +87,7 @@ public partial class OverlayWindow : Window
     {
         PlaceAtBottomCenter();
         _startTime = DateTime.UtcNow;
-        Show();
-        ForceToFront();
+        NativeOrderFront();
         Pill.Opacity = 1;
         _timer.Start();
     }
@@ -77,9 +97,9 @@ public partial class OverlayWindow : Window
         _timer.Stop();
         Pill.Opacity = 0;
 
-        // Wait for fade-out transition, then hide
+        // Fade-out, then remove natively — never call Avalonia Hide()
         var hideTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
-        hideTimer.Tick += (_, _) => { hideTimer.Stop(); Hide(); };
+        hideTimer.Tick += (_, _) => { hideTimer.Stop(); NativeOrderOut(); };
         hideTimer.Start();
     }
 
