@@ -114,6 +114,7 @@ public partial class App : Application
         // ── Initialisation des services ────────────────────────────────────
         _settings    = AppSettings.Load();
         _overlay     = new OverlayWindow();
+        _overlay.InitializeNative();
         _recorder    = new AudioRecorderMac();
         _transcriber = new Transcriber();
         _transcriber.SetLanguage(_settings.Language);
@@ -172,8 +173,16 @@ public partial class App : Application
 
             Dispatcher.UIThread.Post(() =>
             {
-                string key = _settings.HotkeyName;
-                _menuBar!.SetStatus($"Prêt — {key} pour dicter");
+                if (!PasteHelperMac.IsAccessibilityGranted())
+                {
+                    _menuBar!.SetStatus("⚠️ Accessibilité requise — cliquez ici");
+                    Logger.Write("Accessibility NOT granted — affichage avertissement");
+                }
+                else
+                {
+                    string key = _settings.HotkeyName;
+                    _menuBar!.SetStatus($"Prêt — {key} pour dicter");
+                }
             });
         }
         catch (Exception ex)
@@ -216,6 +225,7 @@ public partial class App : Application
 
         _recording = true;
         Logger.Write("OnKeyPressed : début enregistrement");
+        PasteHelperMac.SaveFrontmostApp();
 
         Dispatcher.UIThread.Post(() =>
         {
@@ -314,6 +324,11 @@ public partial class App : Application
 
     private void RestoreReadyStatus()
     {
+        if (!PasteHelperMac.IsAccessibilityGranted())
+        {
+            _menuBar?.SetStatus("⚠️ Accessibilité requise — cliquez ici");
+            return;
+        }
         int    today = HistoryManager.GetTodayWordCount();
         string words = today > 0 ? $" · {today} mots aujourd'hui" : "";
         _menuBar?.SetStatus($"Prêt{words} — {_settings.HotkeyName} pour dicter");
